@@ -23,8 +23,7 @@ class _MyAppState extends State<MyApp> {
   // String _platformVersion = 'Unknown';
   final _gmpayPlugin = Gmpay();
 
-  TextEditingController merchant =
-      TextEditingController(text: "GMPAY-PUB-bUQGDNRVwzzDvFg-23");
+  TextEditingController merchant = TextEditingController(text: "");
   TextEditingController amount = TextEditingController(text: "1000");
   TextEditingController phone = TextEditingController(text: "+256702016859");
   TextEditingController returnurl =
