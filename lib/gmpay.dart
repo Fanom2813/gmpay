@@ -35,6 +35,7 @@ class Gmpay {
 
   Future<dynamic> useRestApi(
       String merchant,
+      String secret,
       double amount,
       GMPayTransactionType type,
       GMPayTransactionMethod method,
@@ -46,12 +47,14 @@ class Gmpay {
       Uri.parse('https://api.gmpayapp.com/api/v2/transactions/web-payment'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        "secret": secret
       },
       body: jsonEncode({
         'method':
             "${type == GMPayTransactionType.withdraw ? 'w' : ''}${resolveMethodName(method)}",
         'amount': amount,
         'apiKey': merchant,
+        'account': phoneNumber,
         if (method == GMPayTransactionMethod.crypto) ...{
           'hash': cryptoHash,
           'usdt': 'usdtTotal',

@@ -130,6 +130,7 @@ class _MyAppState extends State<MyApp> {
                               _gmpayPlugin
                                   .useRestApi(
                                     merchant.text,
+                                    merchant.text,
                                     double.parse(amount.text),
                                     GMPayTransactionType.topup,
                                     GMPayTransactionMethod.mobilemoney,
