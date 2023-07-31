@@ -108,9 +108,9 @@ class _MyAppState extends State<MyApp> {
                             onPressed: () {
                               print(_gmpayPlugin.useInAppBrowser(
                                 merchant.text,
-                                double.parse(amount.text),
                                 phone.text,
                                 GMPayTransactionType.topup,
+                                amount: double.parse(amount.text),
                                 reference: reference.text,
                                 currency: currency.text,
                                 returnUrl: returnurl.text,

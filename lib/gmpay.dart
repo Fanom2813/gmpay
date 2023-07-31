@@ -73,6 +73,8 @@ class Gmpay {
         return "cp";
       case GMPayTransactionMethod.paypal:
         return "pp";
+      case GMPayTransactionMethod.withdrawToApp:
+        return "wapp";
     }
   }
 

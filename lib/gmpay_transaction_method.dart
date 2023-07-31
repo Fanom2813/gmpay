@@ -1,1 +1,7 @@
-enum GMPayTransactionMethod { mobilemoney, paypal, intern, crypto }
+enum GMPayTransactionMethod {
+  mobilemoney,
+  paypal,
+  intern,
+  crypto,
+  withdrawToApp
+}
