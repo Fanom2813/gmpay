@@ -14,9 +14,10 @@ import 'package:http/http.dart' as http;
 import 'in_app_web_browser.dart';
 
 class Gmpay {
-  Future<void> useInAppBrowser(String merchant, double? amount,
-      String phoneNumber, GMPayTransactionType type,
+  Future<void> useInAppBrowser(
+      String merchant, String phoneNumber, GMPayTransactionType type,
       {String? returnUrl,
+      double? amount,
       String? currency,
       String? reference,
       Function(String?)? callback}) async {
@@ -77,12 +78,13 @@ class Gmpay {
 
   String buildUrl(
       {String? merchant,
-      double? amount = 1000,
+      double? amount,
       String? phoneNumber,
       GMPayTransactionType? type = GMPayTransactionType.topup,
       String? returnUrl,
-      String? currency = 'UGX',
+      String? currency,
       String? reference}) {
+    currency = currency ?? 'UGX';
     returnUrl = returnUrl ?? 'https://greenmondaytv.com/thankyou.html';
     return "https://payments.gmpayapp.com/#/${type == GMPayTransactionType.topup ? 'checkout' : 'cashout'}?phone=${phoneNumber?.replaceAll("+", "")}${amount != null && amount > 0 ? "&amount=$amount" : ""}&return=$returnUrl&merchant=$merchant&reference=$reference&currency=$currency";
   }
