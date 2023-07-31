@@ -3,5 +3,4 @@ enum GMPayTransactionMethod {
   paypal,
   intern,
   crypto,
-  withdrawToApp
 }

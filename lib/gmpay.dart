@@ -48,7 +48,8 @@ class Gmpay {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode({
-        'method': resolveMethodName(method),
+        'method':
+            "${type == GMPayTransactionType.withdraw ? 'w' : ''}${resolveMethodName(method)}",
         'amount': amount,
         'apiKey': merchant,
         if (method == GMPayTransactionMethod.crypto) ...{
@@ -73,8 +74,6 @@ class Gmpay {
         return "cp";
       case GMPayTransactionMethod.paypal:
         return "pp";
-      case GMPayTransactionMethod.withdrawToApp:
-        return "wapp";
     }
   }
 
