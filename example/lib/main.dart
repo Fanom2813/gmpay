@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:gmpay/gmpay.dart';
 import 'package:gmpay/gmpay_transaction_method.dart';
 import 'package:gmpay/gmpay_transaction_types.dart';
@@ -25,7 +23,7 @@ class _MyAppState extends State<MyApp> {
 
   TextEditingController merchant = TextEditingController(text: "");
   TextEditingController amount = TextEditingController(text: "1000");
-  TextEditingController phone = TextEditingController(text: "+256702016859");
+  TextEditingController phone = TextEditingController(text: "+256700000000");
   TextEditingController returnurl =
       TextEditingController(text: "https://www.google.com/");
   TextEditingController reference = TextEditingController(text: "ref-12-12-12");
@@ -115,11 +113,11 @@ class _MyAppState extends State<MyApp> {
                                 currency: currency.text,
                                 returnUrl: returnurl.text,
                                 callback: (p0) {
-                                  print(p0);
+                                  // print(p0);
                                 },
                               ));
                             },
-                            child: Text("Process With Webview")),
+                            child: const Text("Process With Webview")),
                       )),
                   SizedBox(
                       width: double.infinity,
@@ -141,7 +139,7 @@ class _MyAppState extends State<MyApp> {
                                   .then((value) =>
                                       print("Call done result ${value}"));
                             },
-                            child: Text("Process Using Rest Api Call")),
+                            child: const Text("Process Using Rest Api Call")),
                       ))
                 ],
               )),

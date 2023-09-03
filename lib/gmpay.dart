@@ -90,6 +90,6 @@ class Gmpay {
       String? reference}) {
     currency = currency ?? 'UGX';
     returnUrl = returnUrl ?? 'https://greenmondaytv.com/thankyou.html';
-    return "https://payments.gmpayapp.com/#/${type == GMPayTransactionType.topup ? 'checkout' : 'cashout'}?phone=${phoneNumber?.replaceAll("+", "")}${amount != null && amount > 0 ? "&amount=$amount" : ""}&return=$returnUrl&merchant=$merchant&reference=$reference&currency=$currency";
+    return "https://api.gmpayapp.com/api/v2/transactions/init?${type == GMPayTransactionType.topup ? 'checkout' : 'cashout'}?phone=${phoneNumber?.replaceAll("+", "")}${amount != null && amount > 0 ? "&amount=$amount" : ""}&return=$returnUrl&merchant=$merchant&reference=$reference&currency=$currency";
   }
 }
