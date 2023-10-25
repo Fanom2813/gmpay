@@ -8,10 +8,16 @@ environment:
   flutter: ">=2.5.0"
 
 dependencies:
+  either_dart: ^1.0.0
   flutter:
     sdk: flutter
-  flutter_inappwebview: ^5.7.2+3
+  # flutter_inappwebview: ^5.7.2+3
+  flutter_form_builder: ^9.1.0
+  form_builder_validators: ^9.0.0
   http: ^0.13.6
+  json_to_form: ^0.0.5
+  map_enhancer: ^2.0.0
+  url_launcher: ^6.2.0
   # plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
@@ -46,9 +52,8 @@ flutter:
     # -------------------
 
   # To add assets to your plugin package, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - packages/gmpay/assets/Gmpay_logo.png
   #
   # For details regarding assets in packages, see
   # https://flutter.dev/assets-and-images/#from-packages

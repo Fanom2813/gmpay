@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'package:gmpay/gmpay.dart';
-import 'package:gmpay/gmpay_transaction_method.dart';
-import 'package:gmpay/gmpay_transaction_types.dart';
+import 'package:gmpay/flutter_gmpay.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +16,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // String _platformVersion = 'Unknown';
-  final _gmpayPlugin = Gmpay();
+  // final _gmpayPlugin = Gmpay();
 
   TextEditingController merchant = TextEditingController(text: "");
   TextEditingController amount = TextEditingController(text: "1000");
@@ -31,122 +28,56 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    Gmpay.instance.initialize("GMPAY-PUB-Ir9FZdMz3QWqrgP-23",
+        secret: "GMPAY-SEC-bIlltnIXmcpAmYj-23");
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('GMPAY PLUGIN TEST'),
-          centerTitle: true,
-        ),
-        body: ListView(children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Form(
-                  child: Column(
-                children: [
-                  const Text("Fill The form correctly"),
-                  TextFormField(
-                    controller: merchant,
-                    decoration: const InputDecoration(
-                        hintText: "GMPAY-PUB...",
-                        labelText: "Merchant Public Key",
-                        helperText:
-                            "You can get your public key in your dashboard in the GMPay App"),
-                  ),
-                  TextFormField(
-                    controller: phone,
-                    decoration: const InputDecoration(
-                        hintText: "+256 ..",
-                        labelText: "Customer Phone Number",
-                        helperText:
-                            "the phone number should contain the country code and start with a plus"),
-                  ),
-                  TextFormField(
-                    controller: amount,
-                    decoration: const InputDecoration(
-                        hintText: "23",
-                        labelText: "Amount",
-                        helperText: "Amount should be a number"),
-                  ),
-                  TextFormField(
-                    controller: returnurl,
-                    decoration: const InputDecoration(
-                        hintText: "https://..",
-                        labelText: "Return URL (Optional)",
-                        helperText:
-                            "the return url after to be redirected to when transaction is done"),
-                  ),
-                  TextFormField(
-                    controller: reference,
-                    decoration: const InputDecoration(
-                        hintText: "dnoie-23pk2-32",
-                        labelText: "Reference (Optional)",
-                        helperMaxLines: 2,
-                        helperText:
-                            "you can attach a custom reference to this transaction that will be submitted back by the our callback to your app"),
-                  ),
-                  TextFormField(
-                    controller: currency,
-                    decoration: const InputDecoration(
-                        hintText: "UGX",
-                        labelText: "Currency (Optional)",
-                        helperText:
-                            "The currency of the amount by default is UGX"),
-                  ),
-                  SizedBox(
-                      width: double.infinity,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                            onPressed: () {
-                              print(_gmpayPlugin.useInAppBrowser(
-                                merchant.text,
-                                phone.text,
-                                GMPayTransactionType.topup,
-                                amount: double.parse(amount.text),
-                                reference: reference.text,
-                                currency: currency.text,
-                                returnUrl: returnurl.text,
-                                callback: (p0) {
-                                  // print(p0);
-                                },
-                              ));
-                            },
-                            child: const Text("Process With Webview")),
-                      )),
-                  SizedBox(
-                      width: double.infinity,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                            onPressed: () {
-                              _gmpayPlugin
-                                  .useRestApi(
-                                    merchant.text,
-                                    merchant.text,
-                                    double.parse(amount.text),
-                                    GMPayTransactionType.topup,
-                                    GMPayTransactionMethod.mobilemoney,
-                                    phone.text,
-                                    reference: reference.text,
-                                    currency: currency.text,
-                                  )
-                                  .then((value) =>
-                                      print("Call done result ${value}"));
-                            },
-                            child: const Text("Process Using Rest Api Call")),
-                      ))
-                ],
-              )),
-            ),
-          ),
-        ]),
+      home: WeNeedTheNavigator(),
+    );
+  }
+}
+
+class WeNeedTheNavigator extends StatelessWidget {
+  const WeNeedTheNavigator({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('GMPAY PLUGIN TEST'),
+        centerTitle: true,
       ),
+      body: ListView(children: [
+        GmpayCard(
+          amount: 1000,
+        ),
+        ElevatedButton(
+            onPressed: () {
+              Gmpay.instance.presentPaymentSheet(
+                context,
+                amount: 3000,
+                account: '702016859',
+                reference: 'ref-12-12-12',
+                approvalUrlHandler: (p0) {
+                  print(p0);
+                },
+                callback: (p1) {
+                  if (p1 == null) {
+                    print("Transaction cancelled");
+                  } else {
+                    print(p1);
+                  }
+                },
+              );
+            },
+            child: Text("Show Bottomsheet"))
+      ]),
     );
   }
 }
