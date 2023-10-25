@@ -116,7 +116,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
                 req.left!.hasIn(['data', 'approval_url']) as String);
           } else {
             try {
-              !await launchUrl(Uri.parse(
+              await launchUrl(Uri.parse(
                   req.left!.hasIn(['data', 'approval_url']) as String));
             } catch (e) {
               setState(() {
