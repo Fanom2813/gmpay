@@ -1,17 +1,16 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gmpay/flutter_gmpay.dart';
-import 'package:gmpay/src/helpers.dart';
-import 'package:gmpay/src/model/api_response.dart';
 import 'package:gmpay/src/theme/colors.dart';
 import 'package:gmpay/src/theme/text_theme.dart';
 import 'package:gmpay/src/theme/theme.dart';
 
 class GmpayCard extends StatefulWidget {
-  GmpayCard({super.key, this.amount, this.phoneNumber, this.reference});
-  double? amount;
-  String? phoneNumber, reference;
+  const GmpayCard({super.key, this.amount, this.phoneNumber, this.reference});
+  final double? amount;
+  final String? phoneNumber, reference;
 
   @override
   State<GmpayCard> createState() => _GmpayCardState();
@@ -19,7 +18,7 @@ class GmpayCard extends StatefulWidget {
 
 class _GmpayCardState extends State<GmpayCard> {
   bool inProgress = true;
-  String? paymentMethod = "app", _reference;
+  String? paymentMethod = "app";
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -35,7 +34,7 @@ class _GmpayCardState extends State<GmpayCard> {
       });
       if (formKey.currentState!.validate()) {
         formKey.currentState!.save();
-        var amt = Helpers.toMoney(amountController.text);
+        // var amt = Helpers.toMoney(amountController.text);
         // var res = await Gmpay.instance.useRestApi(
         //     amt, paymentMethod, phoneNumberController.text,
         //     reference: _reference);
@@ -68,7 +67,9 @@ class _GmpayCardState extends State<GmpayCard> {
         });
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       setState(() {
         inProgress = false;
       });
@@ -100,7 +101,9 @@ class _GmpayCardState extends State<GmpayCard> {
         });
       }
     }).catchError((e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     });
 
     super.initState();
@@ -329,9 +332,6 @@ class _GmpayCardState extends State<GmpayCard> {
   }
 
   void generateReference() {
-    setState(() {
-      _reference =
-          "${DateTime.now().millisecondsSinceEpoch.toString()}-${UniqueKey().toString().replaceAll("#", "").replaceAll("[", "").replaceAll("]", "")}";
-    });
+    setState(() {});
   }
 }

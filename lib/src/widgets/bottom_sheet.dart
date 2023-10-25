@@ -106,10 +106,10 @@ class TestPage extends StatefulWidget {
       : super(key: key);
 
   @override
-  _TestPageState createState() => _TestPageState();
+  TestPageState createState() => TestPageState();
 }
 
-class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
+class TestPageState extends State<TestPage> with TickerProviderStateMixin {
   NavBottomSheetController? get _navBottomSheetController =>
       widget.navBottomSheetController;
   AnimationController? _animationController;

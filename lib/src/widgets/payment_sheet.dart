@@ -24,9 +24,9 @@ class PaymentSheet extends StatefulWidget {
       this.onApprovalUrlHandler})
       : super(key: key);
 
-  String? account, reference;
-  double? amount;
-  Function(String?)? onApprovalUrlHandler;
+  final String? account, reference;
+  final double? amount;
+  final Function(String?)? onApprovalUrlHandler;
 
   @override
   State<PaymentSheet> createState() => _PaymentSheetState();

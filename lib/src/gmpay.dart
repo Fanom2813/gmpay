@@ -7,7 +7,7 @@
 
 import 'dart:convert';
 
-import 'package:either_dart/src/either.dart';
+import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:gmpay/gmpay_transaction_method.dart';
 import 'package:gmpay/gmpay_transaction_types.dart';
@@ -147,8 +147,6 @@ class Gmpay {
       if (callback != null) {
         callback(onValue);
       }
-
-      print(onValue);
     });
   }
 
