@@ -18,24 +18,15 @@ class _MyAppState extends State<MyApp> {
   // String _platformVersion = 'Unknown';
   // final _gmpayPlugin = Gmpay();
 
-  TextEditingController merchant = TextEditingController(text: "");
-  TextEditingController amount = TextEditingController(text: "1000");
-  TextEditingController phone = TextEditingController(text: "+256700000000");
-  TextEditingController returnurl =
-      TextEditingController(text: "https://www.google.com/");
-  TextEditingController reference = TextEditingController(text: "ref-12-12-12");
-  TextEditingController currency = TextEditingController(text: 'UGX');
-
   @override
   void initState() {
-    Gmpay.instance.initialize("GMPAY-PUB-Ir9FZdMz3QWqrgP-23",
-        secret: "GMPAY-SEC-bIlltnIXmcpAmYj-23");
+    Gmpay.instance.initialize("GMPAY-PUB-xx-xx", secret: "GMPAY-SEC-xxx-xx");
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: WeNeedTheNavigator(),
     );
   }
@@ -54,7 +45,7 @@ class WeNeedTheNavigator extends StatelessWidget {
         centerTitle: true,
       ),
       body: ListView(children: [
-        GmpayCard(
+        const GmpayCard(
           amount: 1000,
         ),
         ElevatedButton(
@@ -76,7 +67,7 @@ class WeNeedTheNavigator extends StatelessWidget {
                 },
               );
             },
-            child: Text("Show Bottomsheet"))
+            child: const Text("Show Bottomsheet"))
       ]),
     );
   }
