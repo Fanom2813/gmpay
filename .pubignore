@@ -1,0 +1,10 @@
+  example/integration_test/plugin_integration_test.dart
+  ios/.gitignore
+  ios/Assets/.gitkeep
+  ios/Classes/GmpayPlugin.swift
+  ios/gmpay.podspec
+  lib/gmpay.dart
+  lib/gmpay_method_channel.dart
+  lib/gmpay_platform_interface.dart
+  lib/gmpay_transaction_method.dart
+  lib/gmpay_transaction_types.dart

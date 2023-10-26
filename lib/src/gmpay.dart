@@ -9,8 +9,6 @@ import 'dart:convert';
 
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
-import 'package:gmpay/gmpay_transaction_method.dart';
-import 'package:gmpay/gmpay_transaction_types.dart';
 import 'package:gmpay/src/model/transaction_info.dart';
 import 'package:gmpay/src/widgets/payment_sheet.dart';
 import 'package:gmpay/src/common/api_client.dart';
@@ -208,31 +206,31 @@ class Gmpay {
   //   return APIClientError.fromJson(resp);
   // }
 
-  String resolveMethodName(GMPayTransactionMethod method) {
-    switch (method) {
-      case GMPayTransactionMethod.mobilemoney:
-        return "mm";
-      case GMPayTransactionMethod.intern:
-        return "app";
-      case GMPayTransactionMethod.crypto:
-        return "cp";
-      case GMPayTransactionMethod.paypal:
-        return "pp";
-    }
-  }
+  // String resolveMethodName(GMPayTransactionMethod method) {
+  //   switch (method) {
+  //     case GMPayTransactionMethod.mobilemoney:
+  //       return "mm";
+  //     case GMPayTransactionMethod.intern:
+  //       return "app";
+  //     case GMPayTransactionMethod.crypto:
+  //       return "cp";
+  //     case GMPayTransactionMethod.paypal:
+  //       return "pp";
+  //   }
+  // }
 
-  String buildUrl(
-      {String? merchant,
-      double? amount,
-      String? phoneNumber,
-      GMPayTransactionType? type = GMPayTransactionType.topup,
-      String? returnUrl,
-      String? currency,
-      String? reference}) {
-    currency = currency ?? 'UGX';
-    returnUrl = returnUrl ?? 'https://greenmondaytv.com/thankyou.html';
-    return "https://api.gmpayapp.com/api/v2/transactions/init?phone=${phoneNumber?.replaceAll("+", "")}${amount != null && amount > 0 ? "&amount=$amount" : ""}&return=$returnUrl&merchant=$merchant&reference=$reference&currency=$currency";
-  }
+  // String buildUrl(
+  //     {String? merchant,
+  //     double? amount,
+  //     String? phoneNumber,
+  //     GMPayTransactionType? type = GMPayTransactionType.topup,
+  //     String? returnUrl,
+  //     String? currency,
+  //     String? reference}) {
+  //   currency = currency ?? 'UGX';
+  //   returnUrl = returnUrl ?? 'https://greenmondaytv.com/thankyou.html';
+  //   return "https://api.gmpayapp.com/api/v2/transactions/init?phone=${phoneNumber?.replaceAll("+", "")}${amount != null && amount > 0 ? "&amount=$amount" : ""}&return=$returnUrl&merchant=$merchant&reference=$reference&currency=$currency";
+  // }
 
   Future<Either<Map<String, dynamic>?, ApiResponseMessage?>> requestOtp(
       String otpUrl, Map<String, dynamic> args) async {
