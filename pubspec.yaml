@@ -1,6 +1,6 @@
 name: gmpay
 description: GMPay is a modern payment platform designed to facilitate secure and convenient transactions for businesses and individuals.
-version: 1.0.3
+version: 1.0.4
 homepage: https://github.com/Fanom2813/gmpay
 
 environment:
