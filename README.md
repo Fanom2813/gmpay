@@ -23,7 +23,7 @@ To get started with the GMPay Flutter Plugin, you need to install it in your Flu
 
 ```yaml
 dependencies:
-  gmpay: ^1.0.0
+  gmpay:
 ```
 
 After adding the dependency, run `flutter pub get` to install the package.

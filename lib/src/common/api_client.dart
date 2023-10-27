@@ -10,16 +10,36 @@ class ApiClient {
 
   ApiClient(this.baseUrl);
 
-  Future<Map<String, dynamic>> getRequest(String endpoint) async {
-    final response = await http.get(Uri.parse('$baseUrl/$endpoint'));
+  Future<Either<Map<String, dynamic>?, ApiResponseMessage?>> getRequest(
+      String endpoint) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/$endpoint'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'apiKey': '${Gmpay.instance.apiKey}',
+        if (Gmpay.instance.secretKey != null) ...{
+          'secret': '${Gmpay.instance.secretKey}',
+        }
+      },
+    );
 
     if (response.statusCode == 200) {
-      // If the server returns a 200 OK response, parse the JSON
-      return json.decode(response.body);
+      Map<String, dynamic> resp = json.decode(response.body);
+
+      if (resp.hasIn(['data', 'message'])) {
+        return Right(handleApiMessage(resp));
+      }
+      return Left(resp);
     } else {
-      // If the server did not return a 200 OK response,
-      // throw an exception.
-      throw Exception('Failed to load data');
+      String message =
+          'An error occurred, we could not complete your request, try again later. error code : 0X0003';
+
+      try {
+        Map err = json.decode(response.body);
+        return Right(handleApiMessage(err));
+      } catch (e) {
+        return Right(ApiResponseMessage(success: false, message: message));
+      }
     }
   }
 
@@ -30,7 +50,9 @@ class ApiClient {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'apiKey': '${Gmpay.instance.apiKey}',
-        'secret': '${Gmpay.instance.secretKey}',
+        if (Gmpay.instance.secretKey != null) ...{
+          'secret': '${Gmpay.instance.secretKey}',
+        }
       },
       body: jsonEncode(data),
     );
@@ -43,31 +65,41 @@ class ApiClient {
       }
 
       if (resp.hasIn(['data', 'message'])) {
-        return Right(ApiResponseMessage(
-            success: true, message: resp.getIn(['data', 'message'])));
+        return Right(handleApiMessage(resp));
       }
       return Left(resp);
     } else {
       String message =
-          'An error occurred, we could not complete your transaction, try again later. error code : 0X0001';
+          'An error occurred, we could not complete your request, try again later. error code : 0X0001';
 
       try {
         Map err = json.decode(response.body);
-
-        if (err.hasIn(['message'])) {
-          message = err.getIn(['message']);
-        } else if (err.hasIn(['error']) && err.getIn(['error']) is String) {
-          message = err.getIn(['error']);
-        } else if (err.hasIn(['error', 'message'])) {
-          message = err.getIn(['error', 'message']);
-        } else {
-          message = err.toString();
-        }
-
-        return Right(ApiResponseMessage(success: false, message: message));
+        return Right(handleApiMessage(err));
       } catch (e) {
         return Right(ApiResponseMessage(success: false, message: message));
       }
     }
+  }
+
+  ApiResponseMessage handleApiMessage(Map<dynamic, dynamic> resp) {
+    String message =
+        'An error occurred, we could not complete your request, try again later. error code : 0X0002';
+
+    if (resp.hasIn(['data', 'message'])) {
+      return ApiResponseMessage(
+          success: true, message: resp.getIn(['data', 'message']));
+    }
+
+    if (resp.hasIn(['message'])) {
+      message = resp.getIn(['message']);
+    } else if (resp.hasIn(['error']) && resp.getIn(['error']) is String) {
+      message = resp.getIn(['error']);
+    } else if (resp.hasIn(['error', 'message'])) {
+      message = resp.getIn(['error', 'message']);
+    } else {
+      message = resp.toString();
+    }
+
+    return ApiResponseMessage(success: false, message: message);
   }
 }

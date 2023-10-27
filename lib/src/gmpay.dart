@@ -5,10 +5,12 @@
 // platforms in the `pubspec.yaml` at
 // https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
+import 'package:gmpay/flutter_gmpay.dart';
 import 'package:gmpay/src/model/transaction_info.dart';
 import 'package:gmpay/src/widgets/payment_sheet.dart';
 import 'package:gmpay/src/common/api_client.dart';
@@ -23,6 +25,8 @@ class Gmpay {
   static Gmpay get instance => _instance ??= Gmpay._();
 
   final apiClient = ApiClient(AppConstants.baseUrl);
+
+  Timer? verifyTransactionTimer;
 
   String? apiKey, secretKey;
   // Map<String, String>? methods = {
@@ -97,6 +101,7 @@ class Gmpay {
       {double? amount,
       String? account,
       String? reference,
+      bool? waitForConfirmation,
       Function(TransactionInfo?)? callback,
       Function(String?)? approvalUrlHandler}) {
     final ScrollController scrollController = ScrollController();
@@ -140,6 +145,7 @@ class Gmpay {
       bottomSheetBody: PaymentSheet(
         amount: amount,
         account: account,
+        waitForConfirmation: waitForConfirmation,
       ),
     ).then((onValue) {
       if (callback != null) {
@@ -244,5 +250,32 @@ class Gmpay {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<TransactionStatus?> verifyTransaction(String? s) async {
+//     {
+//     "status": 200,
+//     "statusText": "OK",
+//     "data": {
+//         "status": "pending",
+//         "updatedAt": "2023-10-16T13:26:10.000Z",
+//         "createdAt": "2023-10-16T13:26:10.000Z",
+//         "amount": "1000.00",
+//         "reference": "1697462694937-e0166"
+//     }
+// }
+    try {
+      var r = await apiClient.getRequest("transactions/check/$s");
+      if (r.isLeft) {
+        var data = r.left;
+        if (data != null) {
+          return TransactionStatus.values
+              .firstWhere((element) => element.name == data['data']['status']);
+        }
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
   }
 }

@@ -8,7 +8,7 @@ import 'package:gmpay/src/theme/text_theme.dart';
 import 'package:gmpay/src/theme/theme.dart';
 
 class GmpayCard extends StatefulWidget {
-  const GmpayCard({super.key, this.amount, this.phoneNumber, this.reference});
+  GmpayCard({Key? key, this.amount, this.phoneNumber, this.reference});
   final double? amount;
   final String? phoneNumber, reference;
 

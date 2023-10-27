@@ -5,13 +5,24 @@ class Busy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: SizedBox(
-        child: CircularProgressIndicator(
-          strokeWidth: 1,
-          color: Colors.green,
+    return const Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Center(
+          child: SizedBox(
+            child: CircularProgressIndicator(
+              strokeWidth: 1,
+              color: Colors.green,
+            ),
+          ),
         ),
-      ),
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Text("Processing Please wait ..."),
+        ),
+      ],
     );
   }
 }

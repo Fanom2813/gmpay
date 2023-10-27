@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gmpay/flutter_gmpay.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -20,7 +21,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    Gmpay.instance.initialize("GMPAY-PUB-xx-xx", secret: "GMPAY-SEC-xxx-xx");
+    Gmpay.instance.initialize(dotenv.env['APIKEY']!);
     super.initState();
   }
 
@@ -45,16 +46,17 @@ class WeNeedTheNavigator extends StatelessWidget {
         centerTitle: true,
       ),
       body: ListView(children: [
-        const GmpayCard(
-          amount: 1000,
-        ),
+        //  GmpayCard(
+        //   amount: 1000,
+        // ),
         ElevatedButton(
             onPressed: () {
               Gmpay.instance.presentPaymentSheet(
                 context,
                 amount: 3000,
-                account: '702016859',
+                account: dotenv.env['PHONE']!,
                 reference: 'ref-12-12-12',
+                waitForConfirmation: true,
                 approvalUrlHandler: (p0) {
                   print(p0);
                 },

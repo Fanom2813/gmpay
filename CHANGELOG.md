@@ -17,3 +17,7 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 ### [1.0.3] - [25/10/2023]
 - Adding platforms
 - Fix meta data
+
+### [1.0.7] - [27/10/2023]
+- Added ability to wait for transaction confirmation using the `waitForConfirmation : true` 
+- removed fixed height of the bottom sheet 

@@ -13,6 +13,6 @@ class Helpers {
 
   //make random reference
   static String makeReference(String? companyName) {
-    return "$companyName-${DateTime.now().millisecondsSinceEpoch}";
+    return "${companyName?.replaceAll(' ', '')}-${DateTime.now().millisecondsSinceEpoch}";
   }
 }

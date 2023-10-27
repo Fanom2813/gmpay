@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:gmpay/flutter_gmpay.dart';
 
 ///
 ///transparent route
@@ -122,6 +123,12 @@ class TestPageState extends State<TestPage> with TickerProviderStateMixin {
   bool _isBacked = false;
 
   @override
+  void dispose() {
+    Gmpay.instance.verifyTransactionTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _offset = widget.bottomSheetHeight!;
@@ -223,7 +230,7 @@ class TestPageState extends State<TestPage> with TickerProviderStateMixin {
                     topRight: Radius.circular(10.0),
                   ),
                 ),
-                height: widget.bottomSheetHeight,
+                // height: widget.bottomSheetHeight,
                 child: Column(
                   children: [
                     const SizedBox(height: 10.0),
@@ -246,12 +253,10 @@ class TestPageState extends State<TestPage> with TickerProviderStateMixin {
                           onPointerUp: _onPointerUp,
                           child: widget.bottomSheetHeader!),
                     if (widget.bottomSheetBody != null)
-                      Expanded(
-                        child: Listener(
-                          onPointerMove: _onPointerMove,
-                          onPointerUp: _onPointerUp,
-                          child: widget.bottomSheetBody,
-                        ),
+                      Listener(
+                        onPointerMove: _onPointerMove,
+                        onPointerUp: _onPointerUp,
+                        child: widget.bottomSheetBody,
                       ),
                   ],
                 ),

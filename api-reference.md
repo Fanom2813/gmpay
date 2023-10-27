@@ -59,6 +59,7 @@ Gmpay.instance.presentPaymentSheet(
     double? amount,
     String? account,
     String? reference,
+    bool? waitForConfirmation,
     void Function(String?)? approvalUrlHandler,
     void Function(TransactionInfo?)? callback
   }
@@ -78,6 +79,8 @@ Gmpay.instance.presentPaymentSheet(
 - `approvalUrlHandler` (Function(String?)?, optional): A callback function that handles the approval URL for the transaction. It takes one argument, a `String?`, which represents the approval URL. This parameter is optional and is typically used for specific transaction handling.
 
 - `callback` (Function(TransactionInfo?)?, optional): A callback function that will be called when the payment transaction is completed. The callback function takes one argument, a `TransactionInfo?`, which contains transaction details or may be `null` if the transaction was canceled or failed. This parameter is optional and can be used to handle the transaction result.
+
+- `waitForConfirmation` (bool, optional): A boolean value that specifies whether to wait for confirmation of the payment. Set to true to wait for confirmation or false to proceed without waiting. This parameter is optional and controls whether to wait for payment confirmation.
 
 ### Example:
 
