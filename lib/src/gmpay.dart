@@ -1,17 +1,10 @@
-// You have generated a new plugin project without specifying the `--platforms`
-// flag. A plugin project with no platform support was generated. To add a
-// platform, run `flutter create -t plugin --platforms <platforms> .` under the
-// same directory. You can also find a detailed instruction on how to add
-// platforms in the `pubspec.yaml` at
-// https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
-
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:gmpay/flutter_gmpay.dart';
-import 'package:gmpay/src/model/transaction_info.dart';
+import 'package:gmpay/src/widgets/gmpay_header.dart';
 import 'package:gmpay/src/widgets/payment_sheet.dart';
 import 'package:gmpay/src/common/api_client.dart';
 import 'package:gmpay/src/common/constants.dart';
@@ -29,12 +22,6 @@ class Gmpay {
   Timer? verifyTransactionTimer;
 
   String? apiKey, secretKey;
-  // Map<String, String>? methods = {
-  //   "app": "GMpay App",
-  //   "mm": "Mobile Money",
-  //   "cp": "Crypto",
-  //   "pp": "Paypal",
-  // };
 
   ///initialize the plugin with your public key
   void initialize(String key, {String? secret}) {
@@ -53,7 +40,6 @@ class Gmpay {
     }
 
     //show the payment sheet
-    // PaymentSheet.show(amount, reference: reference, currency: currency);
   }
 
   Future<Either<Map<String, dynamic>?, ApiResponseMessage?>?>
@@ -78,25 +64,6 @@ class Gmpay {
     return jsonDecode(response.body);
   }
 
-  // Future<void> useInAppBrowser(
-  //     String merchant, String phoneNumber, GMPayTransactionType type,
-  //     {String? returnUrl,
-  //     double? amount,
-  //     String? currency,
-  //     String? reference,
-  //     Function(String?)? callback}) async {
-  //   MyInAppBrowser inAppBrowser = MyInAppBrowser();
-  //   final url = buildUrl(
-  //       merchant: merchant,
-  //       amount: amount,
-  //       type: type,
-  //       phoneNumber: phoneNumber,
-  //       reference: reference,
-  //       returnUrl: returnUrl,
-  //       currency: currency);
-  //   await inAppBrowser.browse(url, callback: callback, returnUrl: returnUrl);
-  // }
-
   void presentPaymentSheet(context,
       {double? amount,
       String? account,
@@ -115,33 +82,13 @@ class Gmpay {
       bottomSheetHeight: 600.0,
       bottomSheetBodyHasScrollView: true,
       bottomSheetBodyScrollController: scrollController,
-      bottomSheetHeader: Stack(
-        children: [
-          Column(
-            children: [
-              Image.asset(
-                "assets/Gmpay_logo.png",
-                package: 'gmpay',
-                width: 150,
-              ),
-              const Divider(),
-              const Text(
-                "Be Modern, Be Green",
-                style: TextStyle(fontSize: 14),
-              ),
-            ],
-          ),
-          Positioned(
-              right: 10,
-              top: 10,
-              child: TextButton(
-                  onPressed: () {
-                    navBottomSheetController.close();
-                    callback!(null);
-                  },
-                  child: const Text("Cancel"))),
-        ],
-      ),
+      bottomSheetHeader: GmpayHeader(
+          navBottomSheetController: navBottomSheetController,
+          onCanceled: () {
+            if (callback != null) {
+              callback(null);
+            }
+          }),
       bottomSheetBody: PaymentSheet(
         amount: amount,
         account: account,
@@ -153,90 +100,6 @@ class Gmpay {
       }
     });
   }
-
-  // Future<dynamic> useRestApi(
-  //     double? amount, String? method, String? phoneNumber,
-  //     {String? currency, String? reference, String? cryptoHash}) async {
-  //   var headers = <String, String>{
-  //     'Content-Type': 'application/json; charset=UTF-8',
-  //   };
-  //   if (secretKey != null) {
-  //     headers['secret'] = secretKey!;
-  //   }
-  //   var response = await http.post(
-  //     Uri.parse('${AppConstants.baseUrl}transactions/web-payment'),
-  //     headers: headers,
-  //     body: jsonEncode({
-  //       'method': method,
-  //       'amount': amount,
-  //       'apiKey': apiKey,
-  //       'account': phoneNumber,
-  //       if (method == "cp") ...{
-  //         'hash': cryptoHash,
-  //         'usdt': 'usdtTotal',
-  //       },
-  //       if (reference != null) ...{'reference': reference},
-  //       'currency': currency ?? 'ugx'
-  //     }),
-  //   );
-
-  //   var resp = jsonDecode(response.body);
-  //   //if resp status code not success then return success false
-  //   if (resp['status'] != 200) {
-  //     return APIClientError.fromJson(resp);
-  //   } else {
-  //     return APIClientSuccess.fromJson(resp);
-  //   }
-  // }
-
-  // Future<dynamic> checkTransaction(String reference) async {
-  //   var response = await http.get(
-  //     Uri.parse(
-  //         'https://api.gmpayapp.com/api/v2/transactions/check/${reference}'),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       'apiKey': apiKey!,
-  //       'secret': secretKey ?? ""
-  //     },
-  //   );
-
-  //   var resp = jsonDecode(response.body);
-  //   print(resp);
-  //   //if resp status code not success then return success false
-  //   if (resp['status'] != 200) {
-  //     return APIClientError.fromJson(resp);
-  //   } else if (resp['data']['status'] == "success") {
-  //     return APIClientSuccess.fromJson(resp);
-  //   }
-
-  //   return APIClientError.fromJson(resp);
-  // }
-
-  // String resolveMethodName(GMPayTransactionMethod method) {
-  //   switch (method) {
-  //     case GMPayTransactionMethod.mobilemoney:
-  //       return "mm";
-  //     case GMPayTransactionMethod.intern:
-  //       return "app";
-  //     case GMPayTransactionMethod.crypto:
-  //       return "cp";
-  //     case GMPayTransactionMethod.paypal:
-  //       return "pp";
-  //   }
-  // }
-
-  // String buildUrl(
-  //     {String? merchant,
-  //     double? amount,
-  //     String? phoneNumber,
-  //     GMPayTransactionType? type = GMPayTransactionType.topup,
-  //     String? returnUrl,
-  //     String? currency,
-  //     String? reference}) {
-  //   currency = currency ?? 'UGX';
-  //   returnUrl = returnUrl ?? 'https://greenmondaytv.com/thankyou.html';
-  //   return "https://api.gmpayapp.com/api/v2/transactions/init?phone=${phoneNumber?.replaceAll("+", "")}${amount != null && amount > 0 ? "&amount=$amount" : ""}&return=$returnUrl&merchant=$merchant&reference=$reference&currency=$currency";
-  // }
 
   Future<Either<Map<String, dynamic>?, ApiResponseMessage?>> requestOtp(
       String otpUrl, Map<String, dynamic> args) async {
@@ -253,17 +116,6 @@ class Gmpay {
   }
 
   Future<TransactionStatus?> verifyTransaction(String? s) async {
-//     {
-//     "status": 200,
-//     "statusText": "OK",
-//     "data": {
-//         "status": "pending",
-//         "updatedAt": "2023-10-16T13:26:10.000Z",
-//         "createdAt": "2023-10-16T13:26:10.000Z",
-//         "amount": "1000.00",
-//         "reference": "1697462694937-e0166"
-//     }
-// }
     try {
       var r = await apiClient.getRequest("transactions/check/$s");
       if (r.isLeft) {
@@ -277,5 +129,26 @@ class Gmpay {
       return null;
     }
     return null;
+  }
+
+  verifyTransactionAndWait(
+      String reference, Function(TransactionStatus?) callback) async {
+    var repetition = 0;
+    Gmpay.instance.verifyTransactionTimer =
+        Timer.periodic(const Duration(seconds: 7), (timer) async {
+      var resp = await Gmpay.instance.verifyTransaction(reference);
+
+      if (resp == TransactionStatus.success) {
+        callback(resp);
+        timer.cancel();
+      } else if (repetition == 5) {
+        callback(resp);
+        timer.cancel();
+      }
+
+      if (repetition <= 5) {
+        repetition++;
+      }
+    });
   }
 }

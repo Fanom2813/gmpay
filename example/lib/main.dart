@@ -29,6 +29,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: WeNeedTheNavigator(),
+      themeMode: ThemeMode.light,
     );
   }
 }

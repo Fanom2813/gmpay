@@ -3,15 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gmpay/flutter_gmpay.dart';
 
-///
-///transparent route
-///
-
 class TransparentRoute extends PageRoute<void> {
   TransparentRoute({
     required this.builder,
-    RouteSettings? settings,
-  }) : super(settings: settings, fullscreenDialog: false);
+    super.settings,
+  }) : super(fullscreenDialog: false);
 
   final WidgetBuilder builder;
 
@@ -44,11 +40,6 @@ class TransparentRoute extends PageRoute<void> {
     );
   }
 }
-
-///
-///
-/// nav
-///
 
 Future showNavBottomSheet({
   required BuildContext context,
@@ -197,7 +188,6 @@ class TestPageState extends State<TestPage> with TickerProviderStateMixin {
     if (_offset == 0) {
       return;
     }
-    // print('===========: $_offset');
     if (_offset >= widget.bottomSheetHeight! * 0.4) {
       _updateOffset(_offset, widget.bottomSheetHeight!);
     } else {
@@ -207,62 +197,48 @@ class TestPageState extends State<TestPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery.removePadding(
-      removeTop: true,
-      context: context,
-      child: Material(
-        color: Colors.black38,
-        child: Column(
-          children: <Widget>[
-            if (widget.isDismissible == true)
-              Expanded(child: GestureDetector(
-                onTap: () {
-                  _updateOffset(_offset, widget.bottomSheetHeight!);
-                },
-              )),
-            Transform.translate(
-              offset: Offset(0.0, _offset),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    topRight: Radius.circular(10.0),
+    return SafeArea(
+      child: Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: Material(
+          color: Colors.black38,
+          child: Column(
+            children: <Widget>[
+              if (widget.isDismissible == true)
+                Expanded(child: GestureDetector(
+                  onTap: () {
+                    _updateOffset(_offset, widget.bottomSheetHeight!);
+                  },
+                )),
+              Transform.translate(
+                offset: Offset(0.0, _offset),
+                child: Container(
+                  constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * .5),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.0),
+                      topRight: Radius.circular(10.0),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      if (widget.bottomSheetHeader != null)
+                        Listener(
+                            onPointerMove: (PointerMoveEvent e) {
+                              _onPointerMove(e, true);
+                            },
+                            onPointerUp: _onPointerUp,
+                            child: widget.bottomSheetHeader!),
+                      if (widget.bottomSheetBody != null)
+                        Expanded(child: widget.bottomSheetBody!),
+                    ],
                   ),
                 ),
-                // height: widget.bottomSheetHeight,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10.0),
-                    // Center(
-                    //   child: Container(
-                    //     width: 80.0,
-                    //     height: 6.0,
-                    //     decoration: BoxDecoration(
-                    //       color: Colors.grey[300],
-                    //       borderRadius: BorderRadius.circular(3.0),
-                    //     ),
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 20.0),
-                    if (widget.bottomSheetHeader != null)
-                      Listener(
-                          onPointerMove: (PointerMoveEvent e) {
-                            _onPointerMove(e, true);
-                          },
-                          onPointerUp: _onPointerUp,
-                          child: widget.bottomSheetHeader!),
-                    if (widget.bottomSheetBody != null)
-                      Listener(
-                        onPointerMove: _onPointerMove,
-                        onPointerUp: _onPointerUp,
-                        child: widget.bottomSheetBody,
-                      ),
-                  ],
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
