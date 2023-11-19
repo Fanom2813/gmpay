@@ -23,6 +23,8 @@ class Gmpay {
 
   String? apiKey, secretKey;
 
+  bool? busy;
+
   ///initialize the plugin with your public key
   void initialize(String key, {String? secret}) {
     apiKey = key;
@@ -71,6 +73,11 @@ class Gmpay {
       bool? waitForConfirmation,
       Function(TransactionInfo?)? callback,
       Function(String?)? approvalUrlHandler}) {
+    if (busy == true) {
+      return;
+    }
+    busy = true;
+
     final ScrollController scrollController = ScrollController();
     final NavBottomSheetController navBottomSheetController =
         NavBottomSheetController();
@@ -85,6 +92,7 @@ class Gmpay {
       bottomSheetHeader: GmpayHeader(
           navBottomSheetController: navBottomSheetController,
           onCanceled: () {
+            busy = null;
             if (callback != null) {
               callback(null);
             }
@@ -95,6 +103,7 @@ class Gmpay {
         waitForConfirmation: waitForConfirmation,
       ),
     ).then((onValue) {
+      busy = null;
       if (callback != null) {
         callback(onValue);
       }

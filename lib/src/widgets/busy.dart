@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gmpay/src/theme/text_theme.dart';
 
 class Busy extends StatelessWidget {
   const Busy({super.key});
@@ -20,7 +21,10 @@ class Busy extends StatelessWidget {
         ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: Text("Processing Please wait ..."),
+          child: Text(
+            "Processing Please wait ...",
+            style: GmpayTextStyles.body2,
+          ),
         ),
       ],
     );

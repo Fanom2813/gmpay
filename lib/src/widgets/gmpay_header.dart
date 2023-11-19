@@ -42,7 +42,7 @@ class GmpayHeader extends StatelessWidget {
                   }
                   navBottomSheetController.close();
                 },
-                icon: const Icon(Icons.close)),
+                icon: const Icon(Icons.close, color: Colors.black)),
           ],
         ),
       ),

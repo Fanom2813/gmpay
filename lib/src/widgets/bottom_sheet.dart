@@ -86,7 +86,7 @@ class TestPage extends StatefulWidget {
   final ScrollController? bottomSheetBodyScrollController;
 
   const TestPage(
-      {Key? key,
+      {super.key,
       this.navBottomSheetController,
       this.isDismissible,
       this.backdropColor,
@@ -94,8 +94,7 @@ class TestPage extends StatefulWidget {
       this.bottomSheetHeight,
       this.bottomSheetBody,
       this.bottomSheetBodyHasScrollView,
-      this.bottomSheetBodyScrollController})
-      : super(key: key);
+      this.bottomSheetBodyScrollController});
 
   @override
   TestPageState createState() => TestPageState();
@@ -116,6 +115,7 @@ class TestPageState extends State<TestPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     Gmpay.instance.verifyTransactionTimer?.cancel();
+    Gmpay.instance.busy = null;
     super.dispose();
   }
 

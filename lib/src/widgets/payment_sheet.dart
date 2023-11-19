@@ -224,15 +224,15 @@ class _PaymentSheetState extends State<PaymentSheet>
                   if (f['key'] == 'account') {
                     f['value'] = widget.account ?? "";
                   }
-                  if (f['type'] == 'Input') {
-                    f['decoration'] = InputDecoration(
-                        border: GmpayWidgetTheme.borderInput,
-                        hintText: f['placeholder']);
-                  } else if (f['type'] == 'Select') {
-                    f['decoration'] = InputDecoration(
-                        border: GmpayWidgetTheme.borderInput,
-                        hintText: f['placeholder']);
-                  }
+                  // if (f['type'] == 'Input') {
+                  //   f['decoration'] = InputDecoration(
+                  //       border: GmpayWidgetTheme.borderInput,
+                  //       hintText: f['placeholder']);
+                  // } else if (f['type'] == 'Select') {
+                  //   f['decoration'] = InputDecoration(
+                  //       border: GmpayWidgetTheme.borderInput,
+                  //       hintText: f['placeholder']);
+                  // }
                 }
               }
             }
@@ -297,9 +297,7 @@ class _PaymentSheetState extends State<PaymentSheet>
                             apiResponseMessage!.message ??
                                 "Transaction successful",
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black),
+                            style: GmpayWidgetTheme.bodyMedium,
                           ),
                         ),
                         if (widget.waitForConfirmation != true)
@@ -313,9 +311,12 @@ class _PaymentSheetState extends State<PaymentSheet>
                                   });
                                 }
                               },
-                              child: Text(apiResponseMessage?.success == true
-                                  ? "OK"
-                                  : 'Try again'))
+                              child: Text(
+                                apiResponseMessage?.success == true
+                                    ? "OK"
+                                    : 'Try again',
+                                style: GmpayWidgetTheme.bodyMedium,
+                              ))
                       ],
                     ),
                   ),
@@ -355,28 +356,22 @@ class _PaymentSheetState extends State<PaymentSheet>
                           const SizedBox(height: 20),
                           const Text(
                             'Business Name',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: GmpayWidgetTheme.bodyLarge,
                           ),
                           SelectableText(
                             merchantData!['businessName'],
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w500, fontSize: 20),
+                            style: GmpayWidgetTheme.heading1,
                           )
                         ],
                         if (merchantData!['user']['email'] != null) ...[
                           const SizedBox(height: 20),
                           const Text(
                             'Contact',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: GmpayWidgetTheme.bodyLarge,
                           ),
                           SelectableText(
                             merchantData!['user']['email'],
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w500, fontSize: 20),
+                            style: GmpayWidgetTheme.heading1,
                           )
                         ],
                       ]
@@ -434,41 +429,45 @@ class _PaymentSheetState extends State<PaymentSheet>
                       if (selectedMethod != null)
                         Container(
                           key: UniqueKey(),
-                          child: JsonSchema(
-                            actionSave: (data) {
-                              doPay(data);
-                            },
-                            buttonSave: Container(
-                              height: 40.0,
-                              decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: const Center(
-                                child: Text("Process",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white)),
+                          child: DefaultTextStyle.merge(
+                            style: const TextStyle(color: Colors.black),
+                            child: JsonSchema(
+                              actionSave: (data) {
+                                doPay(data);
+                              },
+                              buttonSave: Container(
+                                height: 40.0,
+                                decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: const Center(
+                                  child: Text("Process",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white)),
+                                ),
                               ),
-                            ),
-                            formMap: methods![selectedMethod!]['form'],
-                            onChanged: ((value) {
-                              additionalData = value;
+                              formMap: methods![selectedMethod!]['form'],
+                              onChanged: ((value) {
+                                additionalData = value;
 
-                              if (value['fields'] != null &&
-                                  value['fields'].length > 0) {
-                                var cur = (value['fields'] as List).where(
-                                    (element) => element['key'] == 'currency');
+                                if (value['fields'] != null &&
+                                    value['fields'].length > 0) {
+                                  var cur = (value['fields'] as List).where(
+                                      (element) =>
+                                          element['key'] == 'currency');
 
-                                if (cur.isNotEmpty) {
-                                  _debounce(() {
-                                    setState(() {
-                                      currency = cur.first['value'];
+                                  if (cur.isNotEmpty) {
+                                    _debounce(() {
+                                      setState(() {
+                                        currency = cur.first['value'];
+                                      });
                                     });
-                                  });
+                                  }
                                 }
-                              }
-                            }),
-                            autovalidateMode: AutovalidateMode.always,
+                              }),
+                              autovalidateMode: AutovalidateMode.always,
+                            ),
                           ),
                         ),
                     ]
