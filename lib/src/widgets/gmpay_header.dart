@@ -14,7 +14,7 @@ class GmpayHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 65,
+      height: 70,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(

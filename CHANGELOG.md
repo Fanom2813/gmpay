@@ -31,3 +31,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 ### [1.0.10] - [21/11/2023]
 - Fixed Reference mismatch
 - Fixed url external url handler callback
+
+### [1.0.11] - [21/11/2023]
+- Callback bug fix

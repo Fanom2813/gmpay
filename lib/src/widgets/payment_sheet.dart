@@ -39,7 +39,7 @@ class _PaymentSheetState extends State<PaymentSheet>
   Map<String, dynamic>? merchantData, additionalData;
   final Debounce _debounce = Debounce(const Duration(seconds: 2));
   List? methods;
-  bool working = false;
+  bool working = false, paymentMade = false;
   bool? showMerchantDetails;
   int? selectedMethod;
   String currency = "UGX";
@@ -125,6 +125,7 @@ class _PaymentSheetState extends State<PaymentSheet>
     //validate form
     if (formDropDown.currentState!.saveAndValidate()) {
       setState(() {
+        paymentMade = true;
         working = true;
       });
       Map<String, dynamic> finalData = {...methods![selectedMethod!]['data']};
@@ -252,7 +253,9 @@ class _PaymentSheetState extends State<PaymentSheet>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        listenForCallback();
+        if (paymentMade) {
+          listenForCallback();
+        }
         break;
 
       case AppLifecycleState.detached:
