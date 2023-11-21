@@ -101,6 +101,8 @@ class Gmpay {
         amount: amount,
         account: account,
         waitForConfirmation: waitForConfirmation,
+        reference: reference,
+        onApprovalUrlHandler: approvalUrlHandler,
       ),
     ).then((onValue) {
       busy = null;

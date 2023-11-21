@@ -224,15 +224,6 @@ class _PaymentSheetState extends State<PaymentSheet>
                   if (f['key'] == 'account') {
                     f['value'] = widget.account ?? "";
                   }
-                  // if (f['type'] == 'Input') {
-                  //   f['decoration'] = InputDecoration(
-                  //       border: GmpayWidgetTheme.borderInput,
-                  //       hintText: f['placeholder']);
-                  // } else if (f['type'] == 'Select') {
-                  //   f['decoration'] = InputDecoration(
-                  //       border: GmpayWidgetTheme.borderInput,
-                  //       hintText: f['placeholder']);
-                  // }
                 }
               }
             }
@@ -240,6 +231,13 @@ class _PaymentSheetState extends State<PaymentSheet>
         });
       }
     });
+
+    if (widget.reference != null) {
+      reference = widget.reference;
+    } else {
+      reference = Helpers.makeReference(merchantData!['businessName']);
+    }
+
     WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
