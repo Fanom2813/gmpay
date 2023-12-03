@@ -6,6 +6,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gmpay/flutter_gmpay.dart';
 import 'package:gmpay/src/common/debouncer.dart';
+import 'package:gmpay/src/common/socket_listener.dart';
 import 'package:gmpay/src/helpers.dart';
 import 'package:gmpay/src/model/api_response.dart';
 import 'package:gmpay/src/theme/theme.dart';
@@ -46,16 +47,56 @@ class _PaymentSheetState extends State<PaymentSheet>
   double? amount;
   String? reference, account;
   ApiResponseMessage? apiResponseMessage;
+  SocketIOService? socketIOService;
 
   listenForCallback() async {
     if (widget.waitForConfirmation == true) {
       await Future.delayed(const Duration(seconds: 3));
-      var repetition = 0;
       setState(() {
         working = true;
       });
+      socketIOService = await SocketIOService().init();
+      socketIOService!.socket.on('callback', (data) {
+        setState(() {
+          working = false;
+        });
+        if (data['transactionId'] == reference) {
+          if (data['status'] == 'success') {
+            setState(() {
+              apiResponseMessage = ApiResponseMessage(
+                  success: true, message: "Transaction successful");
+            });
+            Future.delayed(const Duration(seconds: 3), () {
+              closeDiag(status: TransactionStatus.success);
+            });
+          } else if (data['status'] == 'pending') {
+            setState(() {
+              apiResponseMessage = ApiResponseMessage(
+                  success: false,
+                  message:
+                      "Transaction is still pending, we shall notify you when it is complete!");
+            });
+            Future.delayed(const Duration(seconds: 3), () {
+              closeDiag(status: TransactionStatus.pending);
+            });
+          } else {
+            setState(() {
+              apiResponseMessage = ApiResponseMessage(
+                  success: false, message: "Transaction was not successful");
+            });
+            Future.delayed(const Duration(seconds: 3), () {
+              closeDiag(status: TransactionStatus.failed);
+            });
+          }
+        }
+      });
+      // await Future.delayed(const Duration(seconds: 3));
+      // var repetition = 0;
+      // setState(() {
+      //   working = true;
+      // });
       Gmpay.instance.verifyTransactionTimer =
-          Timer.periodic(const Duration(seconds: 7), (timer) async {
+          Timer.periodic(const Duration(minutes: 1), (timer) async {
         var resp = await Gmpay.instance.verifyTransaction(reference!);
 
         if (resp != TransactionStatus.pending) {
@@ -71,23 +112,24 @@ class _PaymentSheetState extends State<PaymentSheet>
             timer.cancel();
             closeDiag(status: resp);
           });
-        } else if (repetition == 5) {
-          setState(() {
-            working = false;
-            apiResponseMessage = ApiResponseMessage(
-                success: false,
-                message:
-                    "Transaction is still pending, we shall notify you when it is complete!");
-          });
-          _debounce(() {
-            timer.cancel();
-            closeDiag(status: TransactionStatus.pending);
-          });
         }
+        // else if (repetition == 5) {
+        //     setState(() {
+        //       working = false;
+        //       apiResponseMessage = ApiResponseMessage(
+        //           success: false,
+        //           message:
+        //               "Transaction is still pending, we shall notify you when it is complete!");
+        //     });
+        //     _debounce(() {
+        //       timer.cancel();
+        //       closeDiag(status: TransactionStatus.pending);
+        //     });
+        //   }
 
-        if (repetition <= 5) {
-          repetition++;
-        }
+        //   if (repetition <= 5) {
+        //     repetition++;
+        //   }
       });
     }
   }
@@ -142,7 +184,7 @@ class _PaymentSheetState extends State<PaymentSheet>
         finalData['reference'] = widget.reference;
       } else {
         reference = finalData['reference'] ??
-            Helpers.makeReference(merchantData!['businessName']);
+            Helpers.makeReference(merchantData?['businessName']);
         finalData['reference'] = reference;
       }
 
@@ -166,7 +208,7 @@ class _PaymentSheetState extends State<PaymentSheet>
           });
           if (widget.onApprovalUrlHandler != null) {
             widget.onApprovalUrlHandler!(
-                req.left!.hasIn(['approval_url']) as String);
+                req.left!.getIn(['approval_url']) as String);
           } else {
             try {
               await launchUrl(
@@ -235,8 +277,13 @@ class _PaymentSheetState extends State<PaymentSheet>
 
     if (widget.reference != null) {
       reference = widget.reference;
+    } else if (merchantData != null) {
+      reference = Helpers.makeReference(merchantData?['businessName']);
+    } else if (Gmpay.instance.apiKey != null &&
+        Gmpay.instance.apiKey!.isNotEmpty) {
+      reference = Helpers.makeReference(Gmpay.instance.apiKey!.split('-')[2]);
     } else {
-      reference = Helpers.makeReference(merchantData!['businessName']);
+      reference = Helpers.makeReference("GMPAY");
     }
 
     WidgetsBinding.instance.addObserver(this);
@@ -478,6 +525,7 @@ class _PaymentSheetState extends State<PaymentSheet>
   }
 
   void closeDiag({TransactionStatus? status = TransactionStatus.failed}) {
+    socketIOService?.onClose();
     Navigator.pop(
         context,
         TransactionInfo(

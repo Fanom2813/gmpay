@@ -34,3 +34,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 
 ### [1.0.11] - [21/11/2023]
 - Callback bug fix
+
+### [1.0.12] - [3/12/2023]
+- bug fix
