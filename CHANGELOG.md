@@ -44,3 +44,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 
 ### [1.0.14] - [6/12/2023]
 - wait until transaction is confirmed or cancel wait 
+
+### [1.0.15] - [6/12/2023]
+- color fix
