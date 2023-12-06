@@ -1,14 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gmpay/assets/images.dart';
 import 'package:gmpay/flutter_gmpay.dart';
+import 'package:gmpay/src/common/mounted_state.dart';
 import 'package:gmpay/src/theme/colors.dart';
 import 'package:gmpay/src/theme/text_theme.dart';
 import 'package:gmpay/src/theme/theme.dart';
 
 class GmpayCard extends StatefulWidget {
-  GmpayCard({Key? key, this.amount, this.phoneNumber, this.reference});
+  const GmpayCard({super.key, this.amount, this.phoneNumber, this.reference});
   final double? amount;
   final String? phoneNumber, reference;
 
@@ -16,7 +19,7 @@ class GmpayCard extends StatefulWidget {
   State<GmpayCard> createState() => _GmpayCardState();
 }
 
-class _GmpayCardState extends State<GmpayCard> {
+class _GmpayCardState extends SafeState<GmpayCard> {
   bool inProgress = true;
   String? paymentMethod = "app";
   TextEditingController phoneNumberController = TextEditingController();
@@ -34,33 +37,6 @@ class _GmpayCardState extends State<GmpayCard> {
       });
       if (formKey.currentState!.validate()) {
         formKey.currentState!.save();
-        // var amt = Helpers.toMoney(amountController.text);
-        // var res = await Gmpay.instance.useRestApi(
-        //     amt, paymentMethod, phoneNumberController.text,
-        //     reference: _reference);
-        // if (res.runtimeType == APIClientError) {
-        //   setState(() {
-        //     inProgress = false;
-        //     errorMessage = res.error!;
-        //   });
-        //   return;
-        // } else {
-        //   setState(() {
-        //     successMessage = res.toString();
-        //   });
-        //   //set timer and check for tansaction in interval
-        //   timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-        //     // var res = await Gmpay.instance.checkTransaction(_reference!);
-        //     // if (res.runtimeType == APIClientSuccess) {
-        //     //   setState(() {
-        //     //     inProgress = false;
-        //     //   });
-        //     //   timer.cancel();
-        //     //   return;
-        //     // }
-        //   });
-        // }
-        // print(res);
       } else {
         setState(() {
           inProgress = false;
@@ -87,8 +63,6 @@ class _GmpayCardState extends State<GmpayCard> {
     amountController.text =
         widget.amount == null ? "0" : widget.amount.toString();
     phoneNumberController.text = widget.phoneNumber ?? "";
-    //if reference null generate a new one using datetime and a unique id remove #,[,] from the UniqueKey string
-
     if (widget.reference == null) {
       generateReference();
     }
@@ -133,9 +107,8 @@ class _GmpayCardState extends State<GmpayCard> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Image.asset(
-                          "assets/Gmpay_logo.png",
-                          package: 'gmpay',
+                        Image.memory(
+                          const Base64Decoder().convert(logo),
                           width: 150,
                         ),
                         if (inProgress)
@@ -143,7 +116,7 @@ class _GmpayCardState extends State<GmpayCard> {
                             width: 25,
                             height: 25,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                              strokeWidth: 1,
                               color: Color(GmpayColors.primaryColor),
                             ),
                           ),
@@ -195,24 +168,6 @@ class _GmpayCardState extends State<GmpayCard> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // if (_reference != null)
-                            //   Padding(
-                            //     padding: const EdgeInsets.only(bottom: 15.0),
-                            //     child: RichText(
-                            //       textAlign: TextAlign.start,
-                            //       text: TextSpan(
-                            //           text: "Reference: ",
-                            //           style: GmpayTextStyles.body1
-                            //               .copyWith(color: Colors.black),
-                            //           children: [
-                            //             TextSpan(
-                            //                 text: _reference,
-                            //                 style: GmpayTextStyles.body1.copyWith(
-                            //                     color: Colors.black,
-                            //                     fontWeight: FontWeight.bold))
-                            //           ]),
-                            //     ),
-                            //   ),
                             TextFormField(
                               controller: phoneNumberController,
                               enabled: !inProgress,
@@ -262,27 +217,6 @@ class _GmpayCardState extends State<GmpayCard> {
                             const SizedBox(
                               height: 15,
                             ),
-                            // DropdownButtonFormField<String>(
-                            //   decoration: const InputDecoration(
-                            //       focusedBorder: GmpayWidgetTheme.borderInput,
-                            //       border: GmpayWidgetTheme.borderInput,
-                            //       labelText: "Payment Method",
-                            //       helperText: "The payment method to use"),
-                            //   value: paymentMethod,
-                            //   onChanged: inProgress
-                            //       ? null
-                            //       : (value) {
-                            //           setState(() {
-                            //             paymentMethod = value;
-                            //           });
-                            //         },
-                            //   items: Gmpay.instance.methods!.entries
-                            //       .map((e) => DropdownMenuItem<String>(
-                            //             value: e.key,
-                            //             child: Text(e.value),
-                            //           ))
-                            //       .toList(),
-                            // ),
                           ],
                         ),
                       ),

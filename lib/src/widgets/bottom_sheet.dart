@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gmpay/flutter_gmpay.dart';
+import 'package:gmpay/src/common/mounted_state.dart';
 
 class TransparentRoute extends PageRoute<void> {
   TransparentRoute({
@@ -100,7 +101,7 @@ class TestPage extends StatefulWidget {
   TestPageState createState() => TestPageState();
 }
 
-class TestPageState extends State<TestPage> with TickerProviderStateMixin {
+class TestPageState extends SafeState<TestPage> with TickerProviderStateMixin {
   NavBottomSheetController? get _navBottomSheetController =>
       widget.navBottomSheetController;
   AnimationController? _animationController;

@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:gmpay/assets/images.dart';
 import 'package:gmpay/src/widgets/bottom_sheet.dart';
 
 class GmpayHeader extends StatelessWidget {
@@ -18,22 +21,12 @@ class GmpayHeader extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset(
-                  "assets/Gmpay_logo.png",
-                  package: 'gmpay',
-                  width: 100,
-                ),
-                const Text(
-                  "Be Modern, Be Green",
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
+            Image.memory(
+              const Base64Decoder().convert(logo),
+              width: 140,
             ),
             IconButton(
                 onPressed: () {

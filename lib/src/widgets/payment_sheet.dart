@@ -3,17 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gmpay/flutter_gmpay.dart';
 import 'package:gmpay/src/common/debouncer.dart';
 import 'package:gmpay/src/common/socket_listener.dart';
 import 'package:gmpay/src/helpers.dart';
 import 'package:gmpay/src/model/api_response.dart';
+import 'package:gmpay/src/theme/text_theme.dart';
 import 'package:gmpay/src/theme/theme.dart';
 import 'package:gmpay/src/widgets/busy.dart';
+import 'package:gmpay/src/widgets/merchant_info_page.dart';
+import 'package:gmpay/src/widgets/section_title.dart';
 import 'package:json_to_form/json_schema.dart';
 import 'package:map_enhancer/map_enhancer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:gmpay/src/common/mounted_state.dart';
 
 final formDropDown = GlobalKey<FormBuilderState>();
 
@@ -35,17 +38,17 @@ class PaymentSheet extends StatefulWidget {
   State<PaymentSheet> createState() => _PaymentSheetState();
 }
 
-class _PaymentSheetState extends State<PaymentSheet>
+class _PaymentSheetState extends SafeState<PaymentSheet>
     with WidgetsBindingObserver {
   Map<String, dynamic>? merchantData, additionalData;
   final Debounce _debounce = Debounce(const Duration(seconds: 2));
   List? methods;
-  bool working = false, paymentMade = false;
-  bool? showMerchantDetails;
+  bool paymentMade = false;
+  bool? showMerchantDetails, otpOk;
   int? selectedMethod;
   String currency = "UGX";
   double? amount;
-  String? reference, account;
+  String? reference, account, working;
   ApiResponseMessage? apiResponseMessage;
   SocketIOService? socketIOService;
 
@@ -53,12 +56,12 @@ class _PaymentSheetState extends State<PaymentSheet>
     if (widget.waitForConfirmation == true) {
       await Future.delayed(const Duration(seconds: 3));
       setState(() {
-        working = true;
+        working = "Verifying transaction, please wait...";
       });
       socketIOService = await SocketIOService().init();
       socketIOService!.socket.on('callback', (data) {
         setState(() {
-          working = false;
+          working = null;
         });
         if (data['transactionId'] == reference) {
           if (data['status'] == 'success') {
@@ -90,18 +93,14 @@ class _PaymentSheetState extends State<PaymentSheet>
           }
         }
       });
-      // await Future.delayed(const Duration(seconds: 3));
-      // var repetition = 0;
-      // setState(() {
-      //   working = true;
-      // });
+
       Gmpay.instance.verifyTransactionTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async {
         var resp = await Gmpay.instance.verifyTransaction(reference!);
 
         if (resp != TransactionStatus.pending) {
           setState(() {
-            working = false;
+            working = null;
             apiResponseMessage = resp == TransactionStatus.success
                 ? ApiResponseMessage(
                     success: true, message: "Transaction successful")
@@ -113,53 +112,28 @@ class _PaymentSheetState extends State<PaymentSheet>
             closeDiag(status: resp);
           });
         }
-        // else if (repetition == 5) {
-        //     setState(() {
-        //       working = false;
-        //       apiResponseMessage = ApiResponseMessage(
-        //           success: false,
-        //           message:
-        //               "Transaction is still pending, we shall notify you when it is complete!");
-        //     });
-        //     _debounce(() {
-        //       timer.cancel();
-        //       closeDiag(status: TransactionStatus.pending);
-        //     });
-        //   }
-
-        //   if (repetition <= 5) {
-        //     repetition++;
-        //   }
       });
     }
   }
 
   void requestOtp() async {
-    if (additionalData == null) {
-      setState(() {
-        apiResponseMessage = ApiResponseMessage(
-            success: false,
-            message: "Ensure that you have provided all the required fields");
-      });
-
-      return;
-    }
+    additionalData ??= methods![selectedMethod!]['data'];
 
     setState(() {
-      working = true;
+      working = "Requesting OTP, please wait...";
     });
     var resp = await Gmpay.instance.requestOtp(
-        methods![selectedMethod!]['data']['otpUrl'],
-        {"account": additionalData!['account']});
+        methods![selectedMethod!]['data']['otpUrl'], {"account": account});
 
     if (resp.isRight) {
       apiResponseMessage = resp.right!;
     } else {
+      otpOk = resp.left?['pinId'] != null;
       additionalData = {...additionalData!, ...resp.left!};
     }
 
     setState(() {
-      working = false;
+      working = null;
     });
   }
 
@@ -168,7 +142,7 @@ class _PaymentSheetState extends State<PaymentSheet>
     if (formDropDown.currentState!.saveAndValidate()) {
       setState(() {
         paymentMade = true;
-        working = true;
+        working = "Processing transaction, please wait...";
       });
       Map<String, dynamic> finalData = {...methods![selectedMethod!]['data']};
       for (var f in ((data as Map)['fields'] as List)) {
@@ -188,18 +162,24 @@ class _PaymentSheetState extends State<PaymentSheet>
         finalData['reference'] = reference;
       }
 
+      additionalData ??= methods?[selectedMethod!]['data'];
+
+      finalData = {...finalData, ...additionalData!};
+
       var req = await Gmpay.instance.processTransaction(finalData);
       setState(() {
-        working = false;
+        working = null;
       });
 
       if (req?.isRight == true) {
         setState(() {
           apiResponseMessage = req!.right;
         });
-      }
 
-      if (req?.isLeft == true) {
+        if (apiResponseMessage?.success == true) {
+          listenForCallback();
+        }
+      } else if (req?.isLeft == true) {
         if (req!.left!.hasIn(['approval_url'])) {
           setState(() {
             apiResponseMessage = ApiResponseMessage(
@@ -223,19 +203,26 @@ class _PaymentSheetState extends State<PaymentSheet>
             }
           }
         }
-      }
 
-      listenForCallback();
+        listenForCallback();
+      } else {
+        setState(() {
+          apiResponseMessage = ApiResponseMessage(
+              success: false,
+              message:
+                  "An error occurred, we could not complete your transaction, please try again later");
+        });
+      }
     }
   }
 
   @override
   void initState() {
-    working = true;
+    working = "Loading merchant details, please wait...";
     Gmpay.instance.loadBusiness().then((value) {
       if (mounted) {
         setState(() {
-          working = false;
+          working = null;
         });
 
         if (value == null) {
@@ -300,7 +287,12 @@ class _PaymentSheetState extends State<PaymentSheet>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        if (paymentMade) {
+        if ((paymentMade &&
+                widget.waitForConfirmation == true &&
+                working == null &&
+                mounted &&
+                apiResponseMessage == null) ||
+            (apiResponseMessage?.success == true)) {
           listenForCallback();
         }
         break;
@@ -320,8 +312,10 @@ class _PaymentSheetState extends State<PaymentSheet>
   Widget build(BuildContext context) {
     return Theme(
       data: GmpayWidgetTheme.light,
-      child: working
-          ? const Busy()
+      child: working != null
+          ? Busy(
+              message: working,
+            )
           : apiResponseMessage != null
               ? SizedBox(
                   width: 300,
@@ -345,7 +339,7 @@ class _PaymentSheetState extends State<PaymentSheet>
                             apiResponseMessage!.message ??
                                 "Transaction successful",
                             textAlign: TextAlign.center,
-                            style: GmpayWidgetTheme.bodyMedium,
+                            style: GmpayTextStyles.body1,
                           ),
                         ),
                         if (widget.waitForConfirmation != true)
@@ -363,7 +357,7 @@ class _PaymentSheetState extends State<PaymentSheet>
                                 apiResponseMessage?.success == true
                                     ? "OK"
                                     : 'Try again',
-                                style: GmpayWidgetTheme.bodyMedium,
+                                style: GmpayTextStyles.body1,
                               ))
                       ],
                     ),
@@ -380,103 +374,119 @@ class _PaymentSheetState extends State<PaymentSheet>
                         child: Align(
                             alignment: Alignment.centerRight,
                             child: TextButton.icon(
+                                style: GmpayWidgetTheme.textButtonStyle,
                                 onPressed: () {
                                   setState(() {
                                     showMerchantDetails = true;
                                   });
                                 },
                                 icon: const Icon(Icons.help_outline_rounded),
-                                label: const Text("About merchant"))),
+                                label: const Text("About your merchant"))),
                       ),
                     if (showMerchantDetails == true) ...[
-                      if (merchantData != null) ...[
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  showMerchantDetails = null;
-                                });
-                              },
-                              icon: const Icon(Icons.arrow_back_rounded)),
-                        ),
-                        if (merchantData!['businessName'] != null) ...[
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Business Name',
-                            style: GmpayWidgetTheme.bodyLarge,
-                          ),
-                          SelectableText(
-                            merchantData!['businessName'],
-                            style: GmpayWidgetTheme.heading1,
-                          )
-                        ],
-                        if (merchantData!['user']['email'] != null) ...[
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Contact',
-                            style: GmpayWidgetTheme.bodyLarge,
-                          ),
-                          SelectableText(
-                            merchantData!['user']['email'],
-                            style: GmpayWidgetTheme.heading1,
-                          )
-                        ],
-                      ]
+                      MerchantInfoPage(
+                        onBack: () {
+                          setState(() {
+                            showMerchantDetails = null;
+                          });
+                        },
+                        merchantData: merchantData,
+                      )
                     ] else ...[
                       if (methods != null)
-                        FormBuilder(
-                          initialValue: {
-                            'selectedMethod': selectedMethod,
-                            'amount': widget.amount?.toString(),
-                          },
-                          key: formDropDown,
-                          child: Column(
-                            children: [
-                              FormBuilderDropdown<int>(
-                                decoration: const InputDecoration(
-                                    isDense: true,
-                                    labelText: "Select payment method"),
-                                validator: FormBuilderValidators.required(),
-                                items: methods!
-                                    .map((e) => DropdownMenuItem(
-                                        value: methods!.indexOf(e),
-                                        child: Text(e['name'])))
-                                    .toList(),
-                                name: 'selectedMethod',
-                                onChanged: (v) {
-                                  setState(() {
-                                    selectedMethod = v;
-                                  });
-                                },
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                child: FormBuilderTextField(
-                                  name: 'amount',
-                                  readOnly: (widget.amount != null &&
-                                      widget.amount! > 0),
-                                  decoration: InputDecoration(
-                                    prefix: Text(currency),
-                                  ),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                ),
-                              )
-                            ],
+                        const Padding(
+                          padding: EdgeInsets.only(top: gap_l, bottom: gap_m),
+                          child: SectionTitle(
+                            title: "Choose payment method",
                           ),
                         ),
+                      FormBuilder(
+                        initialValue: {
+                          'selectedMethod': selectedMethod,
+                          'amount': widget.amount?.toString(),
+                        },
+                        key: formDropDown,
+                        child: Column(
+                          children: [
+                            FormBuilderField(
+                              name: 'selectedMethod',
+                              builder: (field) {
+                                return Column(
+                                  children: methods!.map((e) {
+                                    var selected =
+                                        methods!.indexOf(e) == selectedMethod;
+                                    return Material(
+                                      color: selected
+                                          ? Colors.green.shade50
+                                          : Colors.transparent,
+                                      borderRadius:
+                                          BorderRadius.circular(gap_s),
+                                      child: ListTile(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: gap_xs,
+                                                horizontal: gap_s),
+                                        selected: selected,
+                                        onTap: () {
+                                          setState(() {
+                                            selectedMethod =
+                                                methods!.indexOf(e);
+                                          });
+                                          field.didChange(methods!.indexOf(e));
+                                        },
+                                        title: Text(
+                                          "${e['name']} ${selected ? '✔' : ''}",
+                                          style: GmpayTextStyles.body1.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        subtitle: e['description'] != null
+                                            ? Text(
+                                                e['description'] as String,
+                                                textAlign: TextAlign.justify,
+                                                style: GmpayTextStyles.subtitle2
+                                                    .copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w300),
+                                              )
+                                            : null,
+                                      ),
+                                    );
+                                  }).toList(),
+                                );
+                              },
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: FormBuilderTextField(
+                                name: 'amount',
+                                readOnly: (widget.amount != null &&
+                                    widget.amount! > 0),
+                                decoration: InputDecoration(
+                                    prefix: Text("$currency  "),
+                                    labelText: "Amount to pay"),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                       if (selectedMethod != null &&
                           methods![selectedMethod!]['data'] != null &&
                           methods![selectedMethod!]['data']['otpUrl'] != null)
-                        TextButton(
-                            onPressed: requestOtp,
-                            child: const Text("Request OTP")),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: gap_s),
+                          child: ElevatedButton(
+                              style: GmpayWidgetTheme.textButtonStyle,
+                              onPressed: otpOk == true ? null : requestOtp,
+                              child: Text(
+                                  "Request OTP ${otpOk == true ? '✔' : ''}")),
+                        ),
                       if (selectedMethod != null)
                         Container(
-                          key: UniqueKey(),
                           child: DefaultTextStyle.merge(
                             style: const TextStyle(color: Colors.black),
                             child: JsonSchema(
@@ -497,8 +507,6 @@ class _PaymentSheetState extends State<PaymentSheet>
                               ),
                               formMap: methods![selectedMethod!]['form'],
                               onChanged: ((value) {
-                                additionalData = value;
-
                                 if (value['fields'] != null &&
                                     value['fields'].length > 0) {
                                   var cur = (value['fields'] as List).where(
@@ -512,6 +520,12 @@ class _PaymentSheetState extends State<PaymentSheet>
                                       });
                                     });
                                   }
+
+                                  var account = (value['fields'] as List).where(
+                                      (element) => element['key'] == 'account');
+                                  setState(() {
+                                    this.account = account.first['value'];
+                                  });
                                 }
                               }),
                               autovalidateMode: AutovalidateMode.always,

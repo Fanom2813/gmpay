@@ -1,27 +1,30 @@
 import 'dart:convert';
 import 'package:either_dart/either.dart';
 import 'package:gmpay/flutter_gmpay.dart';
+import 'package:gmpay/src/common/errors.dart';
 import 'package:gmpay/src/model/api_response.dart';
 import 'package:http/http.dart' as http;
 import 'package:map_enhancer/map_enhancer.dart';
 
 class ApiClient {
-  final String baseUrl; // Your API base URL
+  final String baseUrl;
 
   ApiClient(this.baseUrl);
 
+  Map<String, String> getHeaders() {
+    return {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'apiKey': '${Gmpay.instance.apiKey}',
+      if (Gmpay.instance.secretKey != null) ...{
+        'secret': '${Gmpay.instance.secretKey}',
+      }
+    };
+  }
+
   Future<Either<Map<String, dynamic>?, ApiResponseMessage?>> getRequest(
       String endpoint) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'apiKey': '${Gmpay.instance.apiKey}',
-        if (Gmpay.instance.secretKey != null) ...{
-          'secret': '${Gmpay.instance.secretKey}',
-        }
-      },
-    );
+    final response =
+        await http.get(Uri.parse('$baseUrl/$endpoint'), headers: getHeaders());
 
     if (response.statusCode == 200) {
       Map<String, dynamic> resp = json.decode(response.body);
@@ -45,39 +48,40 @@ class ApiClient {
 
   Future<Either<Map<String, dynamic>?, ApiResponseMessage?>> postRequest(
       String endpoint, Map<String, dynamic> data) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'apiKey': '${Gmpay.instance.apiKey}',
-        if (Gmpay.instance.secretKey != null) ...{
-          'secret': '${Gmpay.instance.secretKey}',
-        }
-      },
-      body: jsonEncode(data),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: getHeaders(),
+        body: jsonEncode(data),
+      );
 
-    if (response.statusCode == 200) {
       Map<String, dynamic> resp = json.decode(response.body);
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          (resp['status'] == null ? true : resp['status'] == 200)) {
+        if (resp.hasIn(['data', 'approval_url'])) {
+          return Left(resp);
+        }
 
-      if (resp.hasIn(['data', 'approval_url'])) {
+        if (resp.hasIn(['data', 'message'])) {
+          return Right(handleApiMessage(resp));
+        }
         return Left(resp);
-      }
+      } else {
+        String message = "Could not complete your request try again later.";
 
-      if (resp.hasIn(['data', 'message'])) {
-        return Right(handleApiMessage(resp));
+        try {
+          Map err = json.decode(response.body);
+          return Right(handleApiMessage(err));
+        } catch (e) {
+          return Right(ApiResponseMessage(success: false, message: message));
+        }
       }
-      return Left(resp);
-    } else {
-      String message =
-          'An error occurred, we could not complete your request, try again later. error code : 0X0001';
-
-      try {
-        Map err = json.decode(response.body);
-        return Right(handleApiMessage(err));
-      } catch (e) {
-        return Right(ApiResponseMessage(success: false, message: message));
-      }
+    } catch (e) {
+      return Right(ApiResponseMessage(
+          success: false,
+          message: FancyErrorCodes.getErrorMessage(
+              FancyErrorCodes.noInternetNebula)));
     }
   }
 

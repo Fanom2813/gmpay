@@ -10,12 +10,10 @@ class SocketIOService {
   }
 
   Future<SocketIOService> init() async {
-    socket = IO.io(AppConstants.base,
-        IO.OptionBuilder().setTransports(['websocket']).build());
-    socket.onConnect((_) {});
-    socket.onError((e) {});
-    // socket.on('callback', (data) {});
-
+    try {
+      socket = IO.io(AppConstants.base,
+          IO.OptionBuilder().setTransports(['websocket']).build());
+    } catch (_) {}
     return this;
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 class Debounce {
-  Duration delay;
+  final Duration delay;
   Timer? _timer;
 
   Debounce(
