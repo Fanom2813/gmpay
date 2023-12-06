@@ -72,16 +72,6 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
             Future.delayed(const Duration(seconds: 3), () {
               closeDiag(status: TransactionStatus.success);
             });
-          } else if (data['status'] == 'pending') {
-            setState(() {
-              apiResponseMessage = ApiResponseMessage(
-                  success: false,
-                  message:
-                      "Transaction is still pending, we shall notify you when it is complete!");
-            });
-            Future.delayed(const Duration(seconds: 3), () {
-              closeDiag(status: TransactionStatus.pending);
-            });
           } else {
             setState(() {
               apiResponseMessage = ApiResponseMessage(
