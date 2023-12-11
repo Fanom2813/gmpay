@@ -70,7 +70,25 @@ class WeNeedTheNavigator extends StatelessWidget {
                 },
               );
             },
-            child: const Text("Show Bottomsheet"))
+            child: const Text("Show Bottomsheet")),
+        ElevatedButton(
+            onPressed: () {
+              Gmpay.instance.presentWithdrawSheet(
+                context,
+                amount: 3000,
+                account: dotenv.env['PHONE']!,
+                reference: 'ref-12-12-12',
+                waitForConfirmation: true,
+                callback: (p1) {
+                  if (p1 == null) {
+                    print("Transaction cancelled");
+                  } else {
+                    print(p1);
+                  }
+                },
+              );
+            },
+            child: const Text("Show W Bottomsheet"))
       ]),
     );
   }
