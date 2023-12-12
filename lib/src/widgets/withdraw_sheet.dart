@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:gmpay/flutter_gmpay.dart';
-import 'package:gmpay/src/common/debouncer.dart';
 import 'package:gmpay/src/common/socket_listener.dart';
 import 'package:gmpay/src/helpers.dart';
 import 'package:gmpay/src/model/api_response.dart';
@@ -12,11 +11,7 @@ import 'package:gmpay/src/theme/text_theme.dart';
 import 'package:gmpay/src/theme/theme.dart';
 import 'package:gmpay/src/widgets/busy.dart';
 import 'package:gmpay/src/widgets/merchant_info_page.dart';
-import 'package:gmpay/src/widgets/section_title.dart';
 import 'package:gmpay/src/widgets/simple_notification_message.dart';
-import 'package:json_to_form/json_schema.dart';
-import 'package:map_enhancer/map_enhancer.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:gmpay/src/common/mounted_state.dart';
 
 final formDropDown = GlobalKey<FormBuilderState>();
@@ -42,7 +37,6 @@ class WithdrawSheet extends StatefulWidget {
 class _WithdrawSheetState extends SafeState<WithdrawSheet>
     with WidgetsBindingObserver {
   Map<String, dynamic>? merchantData, additionalData;
-  final Debounce _debounce = Debounce(const Duration(seconds: 2));
   List? methods;
   bool paymentMade = false;
   bool? showMerchantDetails, otpOk;
@@ -98,8 +92,9 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
                 : ApiResponseMessage(
                     success: false, message: "Transaction was not successful");
           });
-          _debounce(() {
-            timer.cancel();
+          timer.cancel();
+
+          Future.delayed(const Duration(seconds: 3), () {
             closeDiag(status: resp);
           });
         }
@@ -107,55 +102,28 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
     }
   }
 
-  void requestOtp() async {
-    additionalData ??= methods![selectedMethod!]['data'];
-
-    setState(() {
-      working = "Requesting OTP, please wait...";
-    });
-    var resp = await Gmpay.instance.requestOtp(
-        methods![selectedMethod!]['data']['otpUrl'], {"account": account});
-
-    if (resp.isRight) {
-      apiResponseMessage = resp.right!;
-    } else {
-      otpOk = resp.left?['pinId'] != null;
-      additionalData = {...additionalData!, ...resp.left!};
-    }
-
-    setState(() {
-      working = null;
-    });
-  }
-
-  doPay(data) async {
+  doPay() async {
     //validate form
     if (formDropDown.currentState!.saveAndValidate()) {
       setState(() {
         paymentMade = true;
         working = "Processing transaction, please wait...";
       });
-      Map<String, dynamic> finalData = {...methods![selectedMethod!]['data']};
-      for (var f in ((data as Map)['fields'] as List)) {
-        finalData[f['key']] = f['value'];
-      }
+      Map<String, dynamic> finalData = {'method': 'wapp'};
 
       finalData['amount'] = finalData['amount'] ?? widget.amount ?? 0;
       amount = finalData['amount'];
 
-      account = finalData['account'];
+      finalData['account'] = formDropDown.currentState!.value['account'];
 
       if (widget.reference != null) {
         finalData['reference'] = widget.reference;
       } else {
         reference = finalData['reference'] ??
-            Helpers.makeReference(merchantData?['businessName']);
+            Helpers.makeReference(merchantData?['businessName'],
+                method: 'Withdraw');
         finalData['reference'] = reference;
       }
-
-      additionalData ??= methods?[selectedMethod!]['data'];
-
-      finalData = {...finalData, ...additionalData!};
 
       var req = await Gmpay.instance.processTransaction(finalData);
       setState(() {
@@ -170,32 +138,6 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
         if (apiResponseMessage?.success == true) {
           listenForCallback();
         }
-      } else if (req?.isLeft == true) {
-        if (req!.left!.hasIn(['approval_url'])) {
-          setState(() {
-            apiResponseMessage = ApiResponseMessage(
-                success: true,
-                message: "Please complete your transaction in the browser");
-          });
-          if (widget.onApprovalUrlHandler != null) {
-            widget.onApprovalUrlHandler!(
-                req.left!.getIn(['approval_url']) as String);
-          } else {
-            try {
-              await launchUrl(
-                  Uri.parse(req.left!.getIn(['approval_url']) as String));
-            } catch (e) {
-              setState(() {
-                apiResponseMessage = ApiResponseMessage(
-                    success: false,
-                    message:
-                        "An error occurred, we could not complete your transaction, please try again later");
-              });
-            }
-          }
-        }
-
-        listenForCallback();
       } else {
         setState(() {
           apiResponseMessage = ApiResponseMessage(
@@ -395,15 +337,15 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
                       ),
                       FormBuilder(
                         initialValue: {
-                          'selectedMethod': selectedMethod,
                           'amount': widget.amount?.toString(),
+                          'account': widget.account
                         },
                         key: formDropDown,
                         child: Column(
                           children: [
                             Padding(
                               padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
+                                  const EdgeInsets.symmetric(vertical: gap_s),
                               child: FormBuilderTextField(
                                 name: 'amount',
                                 readOnly: (widget.amount != null &&
@@ -415,19 +357,19 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
                                   FilteringTextInputFormatter.digitsOnly
                                 ],
                               ),
-                            )
-                          ],
-                        ),
-                      ),
-                      if (selectedMethod != null)
-                        Container(
-                          child: DefaultTextStyle.merge(
-                            style: const TextStyle(color: Colors.black),
-                            child: JsonSchema(
-                              actionSave: (data) {
-                                doPay(data);
-                              },
-                              buttonSave: Container(
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: gap_s),
+                              child: FormBuilderTextField(
+                                name: 'account',
+                                decoration:
+                                    const InputDecoration(labelText: "Account"),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: doPay,
+                              child: Container(
                                 height: 40.0,
                                 decoration: BoxDecoration(
                                     color: Colors.green,
@@ -439,33 +381,10 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
                                           color: Colors.white)),
                                 ),
                               ),
-                              formMap: methods![selectedMethod!]['form'],
-                              onChanged: ((value) {
-                                if (value['fields'] != null &&
-                                    value['fields'].length > 0) {
-                                  var cur = (value['fields'] as List).where(
-                                      (element) =>
-                                          element['key'] == 'currency');
-
-                                  if (cur.isNotEmpty) {
-                                    _debounce(() {
-                                      setState(() {
-                                        currency = cur.first['value'];
-                                      });
-                                    });
-                                  }
-
-                                  var account = (value['fields'] as List).where(
-                                      (element) => element['key'] == 'account');
-                                  setState(() {
-                                    this.account = account.first['value'];
-                                  });
-                                }
-                              }),
-                              autovalidateMode: AutovalidateMode.always,
-                            ),
-                          ),
+                            )
+                          ],
                         ),
+                      ),
                     ]
                   ],
                 ),

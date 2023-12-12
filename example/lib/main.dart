@@ -21,7 +21,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    Gmpay.instance.initialize(dotenv.env['APIKEY']!);
+    Gmpay.instance
+        .initialize(dotenv.env['APIKEY']!, secret: dotenv.env['APISECRET']!);
     super.initState();
   }
 
@@ -56,7 +57,6 @@ class WeNeedTheNavigator extends StatelessWidget {
                 context,
                 amount: 3000,
                 account: dotenv.env['PHONE']!,
-                reference: 'ref-12-12-12',
                 waitForConfirmation: true,
                 approvalUrlHandler: (p0) {
                   print(p0);
@@ -77,7 +77,6 @@ class WeNeedTheNavigator extends StatelessWidget {
                 context,
                 amount: 3000,
                 account: dotenv.env['PHONE']!,
-                reference: 'ref-12-12-12',
                 waitForConfirmation: true,
                 callback: (p1) {
                   if (p1 == null) {

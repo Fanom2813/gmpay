@@ -97,8 +97,9 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
                 : ApiResponseMessage(
                     success: false, message: "Transaction was not successful");
           });
-          _debounce(() {
-            timer.cancel();
+          timer.cancel();
+
+          Future.delayed(const Duration(seconds: 3), () {
             closeDiag(status: resp);
           });
         }

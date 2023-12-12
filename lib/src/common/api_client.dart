@@ -29,7 +29,7 @@ class ApiClient {
     if (response.statusCode == 200) {
       Map<String, dynamic> resp = json.decode(response.body);
 
-      if (resp.hasIn(['data', 'message'])) {
+      if (resp.hasIn(['data', 'message']) || resp.hasIn(['message'])) {
         return Right(handleApiMessage(resp));
       }
       return Left(resp);
@@ -66,6 +66,10 @@ class ApiClient {
         if (resp.hasIn(['data', 'message'])) {
           return Right(handleApiMessage(resp));
         }
+        if (resp.hasIn(['message'])) {
+          return Right(handleApiMessage(resp));
+        }
+
         return Left(resp);
       } else {
         String message = "Could not complete your request try again later.";
@@ -89,6 +93,8 @@ class ApiClient {
     String message =
         'An error occurred, we could not complete your request, try again later. error code : 0X0002';
 
+    bool? isSuccess;
+
     if (resp.hasIn(['data', 'message'])) {
       return ApiResponseMessage(
           success: true, message: resp.getIn(['data', 'message']));
@@ -104,6 +110,10 @@ class ApiClient {
       message = resp.toString();
     }
 
-    return ApiResponseMessage(success: false, message: message);
+    if (resp.hasIn(['success'])) {
+      isSuccess = resp.getIn(['success']);
+    }
+
+    return ApiResponseMessage(success: isSuccess ?? false, message: message);
   }
 }
