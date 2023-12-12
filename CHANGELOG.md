@@ -47,3 +47,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 
 ### [1.0.15] - [6/12/2023]
 - color fix
+
+### [1.0.16] - [12/12/2023]
+- added withdraw method 
