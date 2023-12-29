@@ -73,7 +73,8 @@ class Gmpay {
       String? reference,
       bool? waitForConfirmation,
       Function(TransactionInfo?)? callback,
-      Function(String?)? approvalUrlHandler}) {
+      Function(String?)? approvalUrlHandler,
+      Map<String, dynamic>? metadata}) {
     if (busy == true) {
       return;
     }
@@ -104,6 +105,7 @@ class Gmpay {
         waitForConfirmation: waitForConfirmation,
         reference: reference,
         onApprovalUrlHandler: approvalUrlHandler,
+        metadata: metadata,
       ),
     ).then((onValue) {
       busy = null;
@@ -118,7 +120,8 @@ class Gmpay {
       String? account,
       String? reference,
       bool? waitForConfirmation,
-      Function(TransactionInfo?)? callback}) {
+      Function(TransactionInfo?)? callback,
+      Map<String, dynamic>? metadata}) {
     if (busy == true) {
       return;
     }
@@ -148,6 +151,7 @@ class Gmpay {
         account: account,
         waitForConfirmation: waitForConfirmation,
         reference: reference,
+        metadata: metadata,
       ),
     ).then((onValue) {
       busy = null;

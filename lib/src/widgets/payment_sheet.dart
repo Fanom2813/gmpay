@@ -27,13 +27,14 @@ class PaymentSheet extends StatefulWidget {
       this.reference,
       this.amount,
       this.waitForConfirmation,
-      this.onApprovalUrlHandler});
+      this.onApprovalUrlHandler,
+      this.metadata});
 
   final String? account, reference;
   final double? amount;
   final bool? waitForConfirmation;
   final Function(String?)? onApprovalUrlHandler;
-
+  final Map<String, dynamic>? metadata;
   @override
   State<PaymentSheet> createState() => _PaymentSheetState();
 }
@@ -156,6 +157,10 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
       additionalData ??= methods?[selectedMethod!]['data'];
 
       finalData = {...finalData, ...additionalData!};
+
+      if (widget.metadata != null) {
+        finalData['metadata'] = widget.metadata;
+      }
 
       var req = await Gmpay.instance.processTransaction(finalData);
       setState(() {

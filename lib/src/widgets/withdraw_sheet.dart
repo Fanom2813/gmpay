@@ -23,12 +23,14 @@ class WithdrawSheet extends StatefulWidget {
       this.reference,
       this.amount,
       this.waitForConfirmation,
-      this.onApprovalUrlHandler});
+      this.onApprovalUrlHandler,
+      this.metadata});
 
   final String? account, reference;
   final double? amount;
   final bool? waitForConfirmation;
   final Function(String?)? onApprovalUrlHandler;
+  final Map<String, dynamic>? metadata;
 
   @override
   State<WithdrawSheet> createState() => _WithdrawSheetState();
@@ -123,6 +125,10 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
             Helpers.makeReference(merchantData?['businessName'],
                 method: 'Withdraw');
         finalData['reference'] = reference;
+      }
+
+      if (widget.metadata != null) {
+        finalData['metadata'] = widget.metadata;
       }
 
       var req = await Gmpay.instance.processTransaction(finalData);
