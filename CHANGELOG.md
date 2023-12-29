@@ -50,3 +50,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 
 ### [1.0.16] - [12/12/2023]
 - added withdraw method 
+
+### [1.0.17] - [29/12/2023]
+- added meta data
