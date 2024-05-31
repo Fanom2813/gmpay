@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:either_dart/either.dart';
+import 'package:deep_pick/deep_pick.dart';
 import 'package:flutter/material.dart';
 import 'package:gmpay/flutter_gmpay.dart';
 import 'package:gmpay/src/widgets/gmpay_header.dart';
@@ -22,21 +22,22 @@ class Gmpay {
 
   Timer? verifyTransactionTimer;
 
-  String? apiKey, secretKey;
+  String? apiKey, secretKey, package;
 
   bool? busy;
 
   ///initialize the plugin with your public key
-  void initialize(String key, {String? secret}) {
+  void initialize({String? key, String? secret, String? packageName}) {
     apiKey = key;
     secretKey = secret;
+    package = packageName;
   }
 
-  bool get isInitialized => apiKey != null;
+  bool get isInitialized => apiKey != null || package != null;
 
   /// initialize the payment
   void pay(double? amount, {String? key, String? reference, String? currency}) {
-    if (apiKey == null && key == null) {
+    if (apiKey == null && key == null && package == null) {
       throw Exception("You must initialize the plugin with your public key");
     } else if (key != null) {
       apiKey = key;
@@ -45,13 +46,19 @@ class Gmpay {
     //show the payment sheet
   }
 
-  Future<Either<Map<String, dynamic>?, ApiResponseMessage?>?>
-      loadBusiness() async {
-    try {
-      return await apiClient.postRequest("merchant/info", {"apiKey": apiKey});
-    } catch (e) {
-      return null;
-    }
+  Future<(dynamic, ApiResponseMessage?)> loadBusiness() async {
+    return await apiClient.postRequest("merchant/info", {"apiKey": apiKey});
+  }
+
+  Future<(dynamic, ApiResponseMessage?)> loadPaymentMethods() async {
+    return await apiClient.getRequest(
+        "${AppConstants.base}/modules/can-process-payment",
+        noUseBaseUrl: true);
+  }
+
+  Future<(dynamic, ApiResponseMessage?)> loadInfo() async {
+    return await apiClient.getRequest("${AppConstants.base}/merchant",
+        noUseBaseUrl: true);
   }
 
   Future<dynamic> getMerchantDetails() async {
@@ -161,29 +168,23 @@ class Gmpay {
     });
   }
 
-  Future<Either<Map<String, dynamic>?, ApiResponseMessage?>> requestOtp(
-      String otpUrl, Map<String, dynamic> args) async {
-    return await apiClient.postRequest(otpUrl, args);
+  Future<(dynamic, ApiResponseMessage?)> requestOtp(
+      String? module, String? method, Map<String, dynamic> args) async {
+    return await apiClient.postRequest('transactions/$module/$method', args);
   }
 
-  Future<Either<Map<String, dynamic>?, ApiResponseMessage?>?>
-      processTransaction(Map<String, dynamic> finalData) async {
-    try {
-      return await apiClient.postRequest("transactions/web-payment", finalData);
-    } catch (e) {
-      return null;
-    }
+  Future<(dynamic, ApiResponseMessage?)> processTransaction(
+      String? module, String? method, Map<String, dynamic> finalData) async {
+    return await apiClient.postRequest(
+        "transactions/$module/$method", finalData);
   }
 
   Future<TransactionStatus?> verifyTransaction(String? s) async {
     try {
       var r = await apiClient.getRequest("transactions/check/$s");
-      if (r.isLeft) {
-        var data = r.left;
-        if (data != null) {
-          return TransactionStatus.values
-              .firstWhere((element) => element.name == data['data']['status']);
-        }
+      if (r.$1 != null) {
+        return TransactionStatus.values.firstWhere(
+            (element) => element.name == pick(r.$1, 'status').asStringOrNull());
       }
     } catch (e) {
       return null;

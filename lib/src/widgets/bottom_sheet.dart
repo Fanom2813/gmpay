@@ -214,6 +214,7 @@ class TestPageState extends SafeState<TestPage> with TickerProviderStateMixin {
               Transform.translate(
                 offset: Offset(0.0, _offset),
                 child: Container(
+                  padding: const EdgeInsets.all(8),
                   constraints: BoxConstraints(
                       maxHeight: MediaQuery.of(context).size.height * .5),
                   decoration: const BoxDecoration(

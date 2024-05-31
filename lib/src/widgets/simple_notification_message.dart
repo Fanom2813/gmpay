@@ -5,11 +5,12 @@ enum SimpleNotificationMessageType { success, error, warning, info }
 
 class SimpleNotificationMessage extends StatelessWidget {
   const SimpleNotificationMessage(
-      {super.key, this.icon, this.message, this.type});
+      {super.key, this.icon, this.message, this.type, this.onClose});
 
   final IconData? icon;
   final String? message;
   final SimpleNotificationMessageType? type;
+  final VoidCallback? onClose;
 
   List<Color> _getColor() {
     switch (type) {
@@ -52,7 +53,9 @@ class SimpleNotificationMessage extends StatelessWidget {
               message ?? "",
               textAlign: TextAlign.justify,
               style: GmpayTextStyles.body2.copyWith(color: color[0]),
-            ))
+            )),
+            if (onClose != null)
+              IconButton(onPressed: onClose, icon: const Icon(Icons.close))
           ],
         ),
       ),

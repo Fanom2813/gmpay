@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:gmpay/flutter_gmpay.dart';
-import 'package:gmpay/src/common/socket_listener.dart';
 import 'package:gmpay/src/helpers.dart';
 import 'package:gmpay/src/model/api_response.dart';
 import 'package:gmpay/src/theme/text_theme.dart';
@@ -47,38 +46,12 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
   double? amount;
   String? reference, account, working;
   ApiResponseMessage? apiResponseMessage;
-  SocketIOService? socketIOService;
 
   listenForCallback() async {
     if (widget.waitForConfirmation == true) {
       await Future.delayed(const Duration(seconds: 3));
       setState(() {
         working = "Verifying transaction, please wait...";
-      });
-      socketIOService = await SocketIOService().init();
-      socketIOService!.socket.on('callback', (data) {
-        setState(() {
-          working = null;
-        });
-        if (data['transactionId'] == reference) {
-          if (data['status'] == 'success') {
-            setState(() {
-              apiResponseMessage = ApiResponseMessage(
-                  success: true, message: "Transaction successful");
-            });
-            Future.delayed(const Duration(seconds: 3), () {
-              closeDiag(status: TransactionStatus.success);
-            });
-          } else {
-            setState(() {
-              apiResponseMessage = ApiResponseMessage(
-                  success: false, message: "Transaction was not successful");
-            });
-            Future.delayed(const Duration(seconds: 3), () {
-              closeDiag(status: TransactionStatus.failed);
-            });
-          }
-        }
       });
 
       Gmpay.instance.verifyTransactionTimer =
@@ -131,14 +104,14 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
         finalData['metadata'] = widget.metadata;
       }
 
-      var req = await Gmpay.instance.processTransaction(finalData);
+      var req = await Gmpay.instance.processTransaction("", "", finalData);
       setState(() {
         working = null;
       });
 
-      if (req?.isRight == true) {
+      if (req.$2 != null) {
         setState(() {
-          apiResponseMessage = req!.right;
+          apiResponseMessage = req.$2;
         });
 
         if (apiResponseMessage?.success == true) {
@@ -174,30 +147,30 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
           return;
         }
 
-        if (value.isRight == true) {
+        if (value.$2 != null) {
           setState(() {
-            apiResponseMessage = value.right;
+            apiResponseMessage = value.$2;
           });
           return;
         }
 
-        setState(() {
-          if (value.left!['data']['merchant'] != null) {
-            merchantData = value.left!['data']['merchant'];
-          }
-          if (value.left!['data']['methods'] != null) {
-            methods = value.left!['data']['methods'];
-            for (var m in methods!) {
-              if (m['form'] != null) {
-                for (var f in m['form']['fields']) {
-                  if (f['key'] == 'account') {
-                    f['value'] = widget.account ?? "";
-                  }
-                }
-              }
-            }
-          }
-        });
+        // setState(() {
+        //   if (value.left!['data']['merchant'] != null) {
+        //     merchantData = value.left!['data']['merchant'];
+        //   }
+        //   if (value.left!['data']['methods'] != null) {
+        //     methods = value.left!['data']['methods'];
+        //     for (var m in methods!) {
+        //       if (m['form'] != null) {
+        //         for (var f in m['form']['fields']) {
+        //           if (f['key'] == 'account') {
+        //             f['value'] = widget.account ?? "";
+        //           }
+        //         }
+        //       }
+        //     }
+        //   }
+        // });
       }
     });
 
@@ -323,14 +296,7 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
                                 label: const Text("About your merchant"))),
                       ),
                     if (showMerchantDetails == true) ...[
-                      MerchantInfoPage(
-                        onBack: () {
-                          setState(() {
-                            showMerchantDetails = null;
-                          });
-                        },
-                        merchantData: merchantData,
-                      )
+                      MerchantInfoPage()
                     ] else ...[
                       const SimpleNotificationMessage(
                         message:
@@ -398,7 +364,6 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
   }
 
   void closeDiag({TransactionStatus? status = TransactionStatus.failed}) {
-    socketIOService?.onClose();
     Navigator.pop(
         context,
         TransactionInfo(
