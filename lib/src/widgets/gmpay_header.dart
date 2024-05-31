@@ -35,7 +35,7 @@ class GmpayHeader extends StatelessWidget {
             context.isMobile
                 ? IconButton(
                     onPressed: () {
-                      context.showBottomSheet(MerchantInfoPage());
+                      context.showBottomSheet(const MerchantInfoPage());
                     },
                     icon: const Icon(Icons.help),
                     tooltip: "About your merchant",
@@ -43,7 +43,7 @@ class GmpayHeader extends StatelessWidget {
                 : TextButton.icon(
                     style: GmpayWidgetTheme.textButtonStyle,
                     onPressed: () {
-                      context.showBottomSheet(MerchantInfoPage());
+                      context.showBottomSheet(const MerchantInfoPage());
                     },
                     icon: const Icon(Icons.help_outline_rounded),
                     label: const Text("Merchant Info")),

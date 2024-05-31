@@ -53,3 +53,8 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 
 ### [1.0.17] - [29/12/2023]
 - added meta data
+
+### [1.0.18] - [31/5/2024]
+- removed bunch of packages 
+- upgraded packages
+- lots of improvements

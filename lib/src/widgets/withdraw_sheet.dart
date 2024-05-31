@@ -137,15 +137,15 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
           working = null;
         });
 
-        if (value == null) {
-          setState(() {
-            apiResponseMessage = ApiResponseMessage(
-                message:
-                    "Sorry we could not connect to our server, kindly check if you have an active internet access and try again",
-                success: false);
-          });
-          return;
-        }
+        // if (value == null) {
+        //   setState(() {
+        //     apiResponseMessage = ApiResponseMessage(
+        //         message:
+        //             "Sorry we could not connect to our server, kindly check if you have an active internet access and try again",
+        //         success: false);
+        //   });
+        //   return;
+        // }
 
         if (value.$2 != null) {
           setState(() {
@@ -296,7 +296,7 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
                                 label: const Text("About your merchant"))),
                       ),
                     if (showMerchantDetails == true) ...[
-                      MerchantInfoPage()
+                      const MerchantInfoPage()
                     ] else ...[
                       const SimpleNotificationMessage(
                         message:
