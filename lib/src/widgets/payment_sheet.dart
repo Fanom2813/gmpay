@@ -506,9 +506,9 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: gap_s, horizontal: gap_s),
-                                      child: ElevatedButton(
+                                      child: OutlinedButton(
                                           style: GmpayWidgetTheme
-                                              .textButtonStyle
+                                              .outlinedGreenButtonStyle
                                               .copyWith(
                                             minimumSize: WidgetStateProperty
                                                 .resolveWith<Size>((states) =>
@@ -554,16 +554,31 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
                               const SizedBox(
                                 height: gap_l,
                               ),
-                              ElevatedButton(
-                                  style:
-                                      GmpayWidgetTheme.textButtonStyle.copyWith(
-                                    minimumSize:
-                                        WidgetStateProperty.resolveWith<Size>(
-                                            (states) =>
-                                                const Size.fromHeight(50)),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextButton(
+                                        style: GmpayWidgetTheme.textButtonStyle,
+                                        onPressed: listenForCallback,
+                                        child: const Text(
+                                            "Verify My Transaction")),
                                   ),
-                                  onPressed: listenForCallback,
-                                  child: const Text("Verify My Transaction")),
+                                  const SizedBox(
+                                    width: gap_s,
+                                  ),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                        style: GmpayWidgetTheme
+                                            .elevatedGreenButtonStyle,
+                                        onPressed: () {
+                                          closeDiag(
+                                              status:
+                                                  TransactionStatus.pending);
+                                        },
+                                        child: const Text("Finish")),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         )

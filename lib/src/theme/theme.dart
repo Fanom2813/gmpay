@@ -7,9 +7,21 @@ class GmpayWidgetTheme {
       borderRadius: BorderRadius.all(Radius.circular(gap_s)));
 
   static final textButtonStyle = TextButton.styleFrom(
+      foregroundColor: Colors.green.shade900,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40));
+
+  static final elevatedGreenButtonStyle = ElevatedButton.styleFrom(
+      backgroundColor: Colors.green.shade900,
+      foregroundColor: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
       shape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(gap_s)));
+
+  static final outlinedGreenButtonStyle = OutlinedButton.styleFrom(
+    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+    foregroundColor: Colors.green.shade900,
+    side: BorderSide(color: Colors.green.shade900, width: 2),
+  );
 
   static final ThemeData light = ThemeData(
     brightness: Brightness.light,

@@ -43,7 +43,8 @@ class GmpayHeader extends StatelessWidget {
                 : TextButton.icon(
                     style: GmpayWidgetTheme.textButtonStyle,
                     onPressed: () {
-                      context.showBottomSheet(const MerchantInfoPage());
+                      context.showBottomSheet(const MerchantInfoPage(),
+                          backgroundColor: Colors.white);
                     },
                     icon: const Icon(Icons.help_outline_rounded),
                     label: const Text("Merchant Info")),

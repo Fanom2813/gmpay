@@ -58,3 +58,7 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 - removed bunch of packages 
 - upgraded packages
 - lots of improvements
+
+### [1.0.19] - [3/6/2024]
+- fixed theming
+- added button to finish the transaction and close the dialog
