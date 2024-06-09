@@ -66,7 +66,7 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
     });
 
     Gmpay.instance.verifyTransactionTimer =
-        Timer.periodic(const Duration(minutes: 1), (timer) async {
+        Timer.periodic(const Duration(seconds: 8), (timer) async {
       var resp = await Gmpay.instance.verifyTransaction(reference!);
 
       if (resp != TransactionStatus.pending) {

@@ -1,6 +1,1 @@
-enum TransactionStatus {
-  pending,
-  success,
-  failed,
-  notPaid,
-}
+enum TransactionStatus { pending, success, failed, notPaid, initiated }

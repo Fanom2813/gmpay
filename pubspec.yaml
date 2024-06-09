@@ -1,6 +1,6 @@
 name: gmpay
 description: Fast and secure transactions for businesses and individuals.
-version: 1.0.20
+version: 1.0.21
 homepage: https://github.com/Fanom2813/gmpay
 
 environment:

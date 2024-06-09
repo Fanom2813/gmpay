@@ -91,7 +91,23 @@ class WeNeedTheNavigator extends StatelessWidget {
                 },
               );
             },
-            child: const Text("Show W Bottomsheet"))
+            child: const Text("Show W Bottomsheet")),
+
+        ElevatedButton(
+            onPressed: () {
+              Gmpay.instance.presentVerificationSheet(
+                context,
+                reference: "1X4BJYKO6E8D",
+                callback: (p1) {
+                  if (p1 == null) {
+                    print("Transaction cancelled");
+                  } else {
+                    print(p1);
+                  }
+                },
+              );
+            },
+            child: const Text("Check transaction status")),
       ]),
     );
   }

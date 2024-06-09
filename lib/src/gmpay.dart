@@ -10,6 +10,7 @@ import 'package:gmpay/src/common/api_client.dart';
 import 'package:gmpay/src/common/constants.dart';
 import 'package:gmpay/src/model/api_response.dart';
 import 'package:gmpay/src/widgets/bottom_sheet.dart';
+import 'package:gmpay/src/widgets/verification_sheet.dart';
 import 'package:http/http.dart' as http;
 
 class Gmpay {
@@ -116,6 +117,39 @@ class Gmpay {
       ),
     ).then((onValue) {
       busy = null;
+      if (callback != null) {
+        callback(onValue);
+      }
+    });
+  }
+
+  void presentVerificationSheet(
+    context, {
+    String? reference,
+    Function(TransactionInfo?)? callback,
+  }) {
+    if (reference == null) {
+      return;
+    }
+
+    final ScrollController scrollController = ScrollController();
+    final NavBottomSheetController navBottomSheetController =
+        NavBottomSheetController();
+    showNavBottomSheet(
+      context: context,
+      navBottomSheetController: navBottomSheetController,
+      isDismissible: true,
+      backdropColor: Colors.white.withOpacity(0.1),
+      bottomSheetHeight: 600.0,
+      bottomSheetBodyHasScrollView: true,
+      bottomSheetBodyScrollController: scrollController,
+      bottomSheetHeader: GmpayHeader(
+        navBottomSheetController: navBottomSheetController,
+      ),
+      bottomSheetBody: VerificationSheet(
+        reference: reference,
+      ),
+    ).then((onValue) {
       if (callback != null) {
         callback(onValue);
       }

@@ -66,3 +66,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 ### [1.0.20] - [5/6/2024]
 - fixed multiple callback call
 - disabled withdraw for now
+
+### [1.0.21] - [9/6/2024]
+- added transaction verification 
