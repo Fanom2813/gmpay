@@ -72,3 +72,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 
 ### [1.0.22] - [26/6/2024]
 - added withdraws
+
+### [1.0.23] - [26/6/2024]
+- chore: Update base URL to production server
