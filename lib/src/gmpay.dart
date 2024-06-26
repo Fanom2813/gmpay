@@ -11,6 +11,7 @@ import 'package:gmpay/src/common/constants.dart';
 import 'package:gmpay/src/model/api_response.dart';
 import 'package:gmpay/src/widgets/bottom_sheet.dart';
 import 'package:gmpay/src/widgets/verification_sheet.dart';
+import 'package:gmpay/src/widgets/withdraw_sheet.dart';
 import 'package:http/http.dart' as http;
 
 class Gmpay {
@@ -56,6 +57,12 @@ class Gmpay {
         noUseBaseUrl: true);
   }
 
+  Future<(dynamic, ApiResponseMessage?)> loadWithdrawMethods() async {
+    return await apiClient.getRequest(
+        "${AppConstants.base}/modules/can-process-withdraw",
+        noUseBaseUrl: true);
+  }
+
   Future<(dynamic, ApiResponseMessage?)> loadInfo() async {
     return await apiClient.getRequest("${AppConstants.base}/merchant",
         noUseBaseUrl: true);
@@ -74,6 +81,13 @@ class Gmpay {
     return jsonDecode(response.body);
   }
 
+  /// Presents the payment sheet.
+  ///
+  /// This method is responsible for displaying the payment sheet in the given [context].
+  /// It allows users to make payments and complete transactions.
+  ///
+  /// Parameters:
+  /// - `context`: The build context in which the payment sheet will be displayed.
   void presentPaymentSheet(context,
       {double? amount,
       String? account,
@@ -100,12 +114,6 @@ class Gmpay {
       bottomSheetBodyScrollController: scrollController,
       bottomSheetHeader: GmpayHeader(
         navBottomSheetController: navBottomSheetController,
-        // onCanceled: () {
-        //   busy = null;
-        //   if (callback != null) {
-        //     callback(null);
-        //   }
-        // }
       ),
       bottomSheetBody: PaymentSheet(
         amount: amount,
@@ -123,6 +131,16 @@ class Gmpay {
     });
   }
 
+  /// Presents a verification sheet.
+  ///
+  /// This method is responsible for displaying a verification sheet to the user.
+  /// The verification sheet is used to verify certain information or actions
+  /// before proceeding with further operations.
+  ///
+  /// Example usage:
+  /// ```dart
+  /// presentVerificationSheet();
+  /// ```
   void presentVerificationSheet(
     context, {
     String? reference,
@@ -156,6 +174,10 @@ class Gmpay {
     });
   }
 
+  /// Presents a withdrawal sheet.
+  ///
+  /// This method is used to display a withdrawal sheet in the given [context].
+  /// The sheet allows the user to initiate a withdrawal process.
   void presentWithdrawSheet(context,
       {double? amount,
       String? account,
@@ -163,45 +185,38 @@ class Gmpay {
       bool? waitForConfirmation,
       Function(TransactionInfo?)? callback,
       Map<String, dynamic>? metadata}) {
-    return;
+    if (busy == true) {
+      return;
+    }
+    busy = true;
 
-    // if (busy == true) {
-    //   return;
-    // }
-    // busy = true;
-
-    // final ScrollController scrollController = ScrollController();
-    // final NavBottomSheetController navBottomSheetController =
-    //     NavBottomSheetController();
-    // showNavBottomSheet(
-    //   context: context,
-    //   navBottomSheetController: navBottomSheetController,
-    //   isDismissible: true,
-    //   backdropColor: Colors.white.withOpacity(0.1),
-    //   bottomSheetHeight: 600.0,
-    //   bottomSheetBodyHasScrollView: true,
-    //   bottomSheetBodyScrollController: scrollController,
-    //   bottomSheetHeader: GmpayHeader(
-    //       navBottomSheetController: navBottomSheetController,
-    //       onCanceled: () {
-    //         busy = null;
-    //         if (callback != null) {
-    //           callback(null);
-    //         }
-    //       }),
-    //   bottomSheetBody: WithdrawSheet(
-    //     amount: amount,
-    //     account: account,
-    //     waitForConfirmation: waitForConfirmation,
-    //     reference: reference,
-    //     metadata: metadata,
-    //   ),
-    // ).then((onValue) {
-    //   busy = null;
-    //   if (callback != null) {
-    //     callback(onValue);
-    //   }
-    // });
+    final ScrollController scrollController = ScrollController();
+    final NavBottomSheetController navBottomSheetController =
+        NavBottomSheetController();
+    showNavBottomSheet(
+      context: context,
+      navBottomSheetController: navBottomSheetController,
+      isDismissible: true,
+      backdropColor: Colors.white.withOpacity(0.1),
+      bottomSheetHeight: 600.0,
+      bottomSheetBodyHasScrollView: true,
+      bottomSheetBodyScrollController: scrollController,
+      bottomSheetHeader: GmpayHeader(
+        navBottomSheetController: navBottomSheetController,
+      ),
+      bottomSheetBody: WithdrawSheet(
+        amount: amount,
+        account: account,
+        waitForConfirmation: waitForConfirmation,
+        reference: reference,
+        metadata: metadata,
+      ),
+    ).then((onValue) {
+      busy = null;
+      if (callback != null) {
+        callback(onValue);
+      }
+    });
   }
 
   Future<(dynamic, ApiResponseMessage?)> requestOtp(
