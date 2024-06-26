@@ -426,7 +426,7 @@ class _WithdrawSheetState extends SafeState<WithdrawSheet>
                                       tabController?.animateTo(0);
                                     },
                                     title:
-                                        "Withdraw ${methods![selectedMethod!].$2}",
+                                        "Withdrawing with ${methods![selectedMethod!].$2}",
                                     subtitle:
                                         "${methods![selectedMethod!].$3}"),
                               ),
