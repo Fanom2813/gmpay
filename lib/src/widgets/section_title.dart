@@ -10,21 +10,34 @@ class SectionTitle extends StatelessWidget {
       this.showDivider,
       this.canGoBack,
       this.textCrossAxisAlignment,
+      this.imageAsset,
       this.onBack});
   final String? title, subtitle;
   final bool? showDivider, canGoBack;
   final VoidCallback? onBack;
   final CrossAxisAlignment? textCrossAxisAlignment;
+  final String? imageAsset;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (canGoBack == true) ...[
           IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
           const SizedBox(
-            width: gap_m,
+            width: gap_xs,
+          ),
+        ],
+        if (imageAsset != null) ...[
+          Image.asset(
+            'assets/$imageAsset',
+            width: 50,
+            height: 50,
+            package: 'gmpay',
+          ),
+          const SizedBox(
+            width: gap_xs,
           ),
         ],
         Expanded(

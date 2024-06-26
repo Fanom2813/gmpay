@@ -49,7 +49,9 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
         String?,
         List<Map<dynamic, dynamic>>,
         String?,
-        String?
+        String?,
+        String?,
+        String?,
       )>? methods;
   bool paymentMade = false;
   bool? showMerchantDetails, otpOk;
@@ -152,6 +154,15 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
       setState(() {
         working = "Processing transaction, please wait...";
       });
+
+      if (widget.metadata != null) {
+        for (var inp in paymentFormKey.currentState!.value.keys) {
+          if (!widget.metadata!.containsKey(inp)) {
+            widget.metadata![inp] = paymentFormKey.currentState!.value[inp];
+          }
+        }
+      }
+
       Map<String, dynamic> finalData = {
         "metadata": {
           "account": paymentFormKey.currentState!.value['account'],
@@ -235,6 +246,8 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
                       ),
                       pick(e, 'otpMethod').asStringOrNull(),
                       pick(e, 'module').asStringOrNull(),
+                      pick(e, 'image').asStringOrNull(),
+                      pick(e, 'instructions').asStringOrNull(),
                     ))
                 .toList();
           }
@@ -345,6 +358,17 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
                                                       BorderRadius.circular(
                                                           gap_s),
                                                   child: ListTile(
+                                                    leading: e.$7 != null
+                                                        ? Image.asset(
+                                                            'assets/${e.$7}',
+                                                            width: 30,
+                                                            height: 30,
+                                                            fit: BoxFit.cover,
+                                                            package: 'gmpay')
+                                                        : const Icon(
+                                                            Icons.payment,
+                                                            size: 30,
+                                                          ),
                                                     contentPadding:
                                                         const EdgeInsets
                                                             .symmetric(
@@ -397,12 +421,13 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
                         ListView(
                           physics: const BouncingScrollPhysics(),
                           children: [
-                            if (selectedMethod != null)
+                            if (selectedMethod != null) ...[
                               Padding(
                                 padding: const EdgeInsets.only(
                                     top: gap_xs, bottom: gap_m),
                                 child: SectionTitle(
                                     canGoBack: true,
+                                    imageAsset: methods![selectedMethod!].$7,
                                     onBack: () {
                                       tabController?.animateTo(0);
                                     },
@@ -411,7 +436,16 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
                                     subtitle:
                                         "${methods![selectedMethod!].$3}"),
                               ),
-                            if (selectedMethod != null)
+                              if (methods![selectedMethod!].$8 != null)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: gap_s, horizontal: gap_s),
+                                  child: SimpleNotificationMessage(
+                                    type: SimpleNotificationMessageType.info,
+                                    icon: Icons.info_rounded,
+                                    message: methods![selectedMethod!].$8,
+                                  ),
+                                ),
                               FormBuilder(
                                 key: paymentFormKey,
                                 initialValue: {
@@ -520,6 +554,7 @@ class _PaymentSheetState extends SafeState<PaymentSheet>
                                   ],
                                 ),
                               ),
+                            ]
                           ],
                         ),
                         Center(

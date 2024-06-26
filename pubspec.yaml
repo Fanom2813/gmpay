@@ -22,5 +22,5 @@ dev_dependencies:
 
 
 flutter:
-  # assets:
-  #   - packages/gmpay/assets/GMPayIconTrans_2.png
+  assets:
+    - assets/
