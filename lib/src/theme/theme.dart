@@ -65,3 +65,5 @@ const double gap_xxxxxxxxxxxxxxl = 144.0;
 const double gap_xxxxxxxxxxxxxxxl = 152.0;
 const double gap_xxxxxxxxxxxxxxxxl = 160.0;
 const double gap_xxxxxxxxxxxxxxxxxl = 168.0;
+
+final shimmerColor = Colors.grey.shade300;

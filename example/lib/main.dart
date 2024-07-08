@@ -69,7 +69,7 @@ class WeNeedTheNavigator extends StatelessWidget {
                   if (p1 == null) {
                     print("Transaction cancelled");
                   } else {
-                    print(p1);
+                    print(p1.status?.name);
                   }
                 },
               );
@@ -79,7 +79,7 @@ class WeNeedTheNavigator extends StatelessWidget {
             onPressed: () {
               Gmpay.instance.presentWithdrawSheet(
                 context,
-                amount: 3000,
+                amount: 1000,
                 account: dotenv.env['PHONE']!,
                 waitForConfirmation: true,
                 callback: (p1) {

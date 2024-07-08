@@ -1,6 +1,6 @@
 name: gmpay
 description: Fast and secure transactions for businesses and individuals.
-version: 1.0.23
+version: 1.0.24
 homepage: https://github.com/Fanom2813/gmpay
 
 environment:
@@ -13,7 +13,9 @@ dependencies:
   flutter_form_builder: ^9.3.0
   form_builder_validators: ^10.0.1
   http: ^1.2.1
+  shimmer_animation: ^2.2.1
   url_launcher: ^6.2.6
+  wolt_modal_sheet: ^0.7.0
 
 dev_dependencies:
   flutter_test:

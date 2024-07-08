@@ -4,15 +4,19 @@ import 'dart:convert';
 import 'package:deep_pick/deep_pick.dart';
 import 'package:flutter/material.dart';
 import 'package:gmpay/flutter_gmpay.dart';
+import 'package:gmpay/src/common/app_provider.dart';
+import 'package:gmpay/src/widgets/failed_page.dart';
 import 'package:gmpay/src/widgets/gmpay_header.dart';
-import 'package:gmpay/src/widgets/payment_sheet.dart';
 import 'package:gmpay/src/common/api_client.dart';
 import 'package:gmpay/src/common/constants.dart';
 import 'package:gmpay/src/model/api_response.dart';
-import 'package:gmpay/src/widgets/bottom_sheet.dart';
+import 'package:gmpay/src/widgets/merchant_info_page.dart';
+import 'package:gmpay/src/widgets/payment_form.dart';
+import 'package:gmpay/src/widgets/select_payment_method.dart';
+import 'package:gmpay/src/widgets/success_page.dart';
 import 'package:gmpay/src/widgets/verification_sheet.dart';
-import 'package:gmpay/src/widgets/withdraw_sheet.dart';
 import 'package:http/http.dart' as http;
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 class Gmpay {
   static Gmpay? _instance;
@@ -24,8 +28,6 @@ class Gmpay {
   Timer? verifyTransactionTimer;
 
   String? apiKey, secretKey, package;
-
-  bool? busy;
 
   ///initialize the plugin with your public key
   void initialize({String? key, String? secret, String? packageName}) {
@@ -96,38 +98,79 @@ class Gmpay {
       Function(TransactionInfo?)? callback,
       Function(String?)? approvalUrlHandler,
       Map<String, dynamic>? metadata}) {
-    if (busy == true) {
-      return;
-    }
-    busy = true;
-
-    final ScrollController scrollController = ScrollController();
-    final NavBottomSheetController navBottomSheetController =
-        NavBottomSheetController();
-    showNavBottomSheet(
+    WoltModalSheet.show<void>(
       context: context,
-      navBottomSheetController: navBottomSheetController,
-      isDismissible: true,
-      backdropColor: Colors.white.withOpacity(0.1),
-      bottomSheetHeight: 600.0,
-      bottomSheetBodyHasScrollView: true,
-      bottomSheetBodyScrollController: scrollController,
-      bottomSheetHeader: GmpayHeader(
-        navBottomSheetController: navBottomSheetController,
-      ),
-      bottomSheetBody: PaymentSheet(
-        amount: amount,
-        account: account,
-        waitForConfirmation: waitForConfirmation,
-        reference: reference,
-        onApprovalUrlHandler: approvalUrlHandler,
-        metadata: metadata,
-      ),
-    ).then((onValue) {
-      busy = null;
-      if (callback != null) {
-        callback(onValue);
-      }
+      pageListBuilder: (modalSheetContext) {
+        final List<WoltModalSheetPage> pages = <WoltModalSheetPage>[
+          WoltModalSheetPage(
+            id: "payment_methods",
+            isTopBarLayerAlwaysVisible: true,
+            topBar: const GmpayHeader(),
+            enableDrag: true,
+            child: const SelectPaymentMethod(),
+            backgroundColor: Colors.white,
+          ),
+          WoltModalSheetPage(
+              backgroundColor: Colors.white,
+              isTopBarLayerAlwaysVisible: true,
+              topBar: const GmpayHeader(),
+              id: "payment_form",
+              child: PaymentForm(
+                account: account,
+                amount: amount,
+                metadata: metadata,
+                onApprovalUrlHandler: approvalUrlHandler,
+                reference: reference,
+              )),
+          WoltModalSheetPage(
+              backgroundColor: Colors.green.shade900,
+              id: "success_page",
+              child: SuccessPage(
+                onDone: () {
+                  if (callback != null) {
+                    callback(AppProvider.instance.transactionInfo);
+                  }
+                  Navigator.pop(context);
+                },
+              )),
+          WoltModalSheetPage(
+              backgroundColor: Colors.red.shade900,
+              id: "failed_page",
+              child: FailedPage(
+                onDone: () {
+                  if (callback != null) {
+                    callback(AppProvider.instance.transactionInfo);
+                  }
+                  Navigator.pop(context);
+                },
+              )),
+          WoltModalSheetPage(
+              id: "merchant_info",
+              isTopBarLayerAlwaysVisible: true,
+              backgroundColor: Colors.white,
+              topBar: const GmpayHeader(
+                hideInfoButton: true,
+              ),
+              child: const MerchantInfoPage()),
+        ];
+
+        return pages.map((WoltModalSheetPage page) => page).toList();
+      },
+      onModalDismissedWithBarrierTap: () {
+        if (callback != null) {
+          callback(AppProvider.instance.transactionInfo);
+        }
+        Navigator.pop(context);
+      },
+      onModalDismissedWithDrag: () {
+        if (callback != null) {
+          callback(AppProvider.instance.transactionInfo);
+        }
+        Navigator.pop(context);
+      },
+    ).then((value) {
+      debugPrint("Modal dismissed");
+      AppProvider.resetInstance();
     });
   }
 
@@ -150,28 +193,94 @@ class Gmpay {
       return;
     }
 
-    final ScrollController scrollController = ScrollController();
-    final NavBottomSheetController navBottomSheetController =
-        NavBottomSheetController();
-    showNavBottomSheet(
+    WoltModalSheet.show<void>(
       context: context,
-      navBottomSheetController: navBottomSheetController,
-      isDismissible: true,
-      backdropColor: Colors.white.withOpacity(0.1),
-      bottomSheetHeight: 600.0,
-      bottomSheetBodyHasScrollView: true,
-      bottomSheetBodyScrollController: scrollController,
-      bottomSheetHeader: GmpayHeader(
-        navBottomSheetController: navBottomSheetController,
-      ),
-      bottomSheetBody: VerificationSheet(
-        reference: reference,
-      ),
-    ).then((onValue) {
-      if (callback != null) {
-        callback(onValue);
-      }
+      pageListBuilder: (modalSheetContext) {
+        final List<WoltModalSheetPage> pages = <WoltModalSheetPage>[
+          WoltModalSheetPage(
+            id: "verification_page",
+            isTopBarLayerAlwaysVisible: true,
+            topBar: const GmpayHeader(),
+            enableDrag: true,
+            child: VerificationPage(
+              reference: reference,
+            ),
+            backgroundColor: Colors.white,
+          ),
+          WoltModalSheetPage(
+              backgroundColor: Colors.green.shade900,
+              id: "success_page",
+              child: SuccessPage(
+                onDone: () {
+                  if (callback != null) {
+                    callback(AppProvider.instance.transactionInfo);
+                  }
+                  Navigator.pop(context);
+                },
+              )),
+          WoltModalSheetPage(
+              backgroundColor: Colors.red.shade900,
+              id: "failed_page",
+              child: FailedPage(
+                onDone: () {
+                  if (callback != null) {
+                    callback(AppProvider.instance.transactionInfo);
+                  }
+                  Navigator.pop(context);
+                },
+              )),
+          WoltModalSheetPage(
+              id: "merchant_info",
+              isTopBarLayerAlwaysVisible: true,
+              backgroundColor: Colors.white,
+              topBar: const GmpayHeader(
+                hideInfoButton: true,
+              ),
+              child: const MerchantInfoPage()),
+        ];
+
+        return pages.map((WoltModalSheetPage page) => page).toList();
+      },
+      onModalDismissedWithBarrierTap: () {
+        if (callback != null) {
+          callback(AppProvider.instance.transactionInfo);
+        }
+        Navigator.pop(context);
+      },
+      onModalDismissedWithDrag: () {
+        if (callback != null) {
+          callback(AppProvider.instance.transactionInfo);
+        }
+        Navigator.pop(context);
+      },
+    ).then((value) {
+      debugPrint("Modal dismissed");
+      Gmpay.instance.verifyTransactionTimer?.cancel();
+      AppProvider.resetInstance();
     });
+
+    // final ScrollController scrollController = ScrollController();
+    // final NavBottomSheetController navBottomSheetController =
+    //     NavBottomSheetController();
+    // showNavBottomSheet(
+    //   context: context,
+    //   navBottomSheetController: navBottomSheetController,
+    //   isDismissible: true,
+    //   backdropColor: Colors.white.withOpacity(0.1),
+    //   bottomSheetHeight: 600.0,
+    //   bottomSheetBodyHasScrollView: true,
+    //   bottomSheetBodyScrollController: scrollController,
+    //   bottomSheetHeader: GmpayHeader(
+    //       // navBottomSheetController: navBottomSheetController,
+    //       ),
+    //   bottomSheetBody: VerificationSheet(
+    //     reference: reference,
+    //   ),
+    // ).then((onValue) {
+    //   if (callback != null) {
+    //     callback(onValue);
+    //   }
+    // });
   }
 
   /// Presents a withdrawal sheet.
@@ -185,38 +294,115 @@ class Gmpay {
       bool? waitForConfirmation,
       Function(TransactionInfo?)? callback,
       Map<String, dynamic>? metadata}) {
-    if (busy == true) {
-      return;
-    }
-    busy = true;
-
-    final ScrollController scrollController = ScrollController();
-    final NavBottomSheetController navBottomSheetController =
-        NavBottomSheetController();
-    showNavBottomSheet(
+    WoltModalSheet.show<void>(
       context: context,
-      navBottomSheetController: navBottomSheetController,
-      isDismissible: true,
-      backdropColor: Colors.white.withOpacity(0.1),
-      bottomSheetHeight: 600.0,
-      bottomSheetBodyHasScrollView: true,
-      bottomSheetBodyScrollController: scrollController,
-      bottomSheetHeader: GmpayHeader(
-        navBottomSheetController: navBottomSheetController,
-      ),
-      bottomSheetBody: WithdrawSheet(
-        amount: amount,
-        account: account,
-        waitForConfirmation: waitForConfirmation,
-        reference: reference,
-        metadata: metadata,
-      ),
-    ).then((onValue) {
-      busy = null;
-      if (callback != null) {
-        callback(onValue);
-      }
+      pageListBuilder: (modalSheetContext) {
+        final List<WoltModalSheetPage> pages = <WoltModalSheetPage>[
+          WoltModalSheetPage(
+            id: "payment_methods",
+            isTopBarLayerAlwaysVisible: true,
+            topBar: const GmpayHeader(),
+            enableDrag: true,
+            child: const SelectPaymentMethod(
+              isWithdraw: true,
+            ),
+            backgroundColor: Colors.white,
+          ),
+          WoltModalSheetPage(
+              backgroundColor: Colors.white,
+              isTopBarLayerAlwaysVisible: true,
+              topBar: const GmpayHeader(),
+              id: "payment_form",
+              child: PaymentForm(
+                isWithdraw: true,
+                account: account,
+                amount: amount,
+                metadata: metadata,
+                reference: reference,
+              )),
+          WoltModalSheetPage(
+              backgroundColor: Colors.green.shade900,
+              id: "success_page",
+              child: SuccessPage(
+                onDone: () {
+                  if (callback != null) {
+                    callback(AppProvider.instance.transactionInfo);
+                  }
+                  Navigator.pop(context);
+                },
+              )),
+          WoltModalSheetPage(
+              backgroundColor: Colors.red.shade900,
+              id: "failed_page",
+              child: FailedPage(
+                onDone: () {
+                  if (callback != null) {
+                    callback(AppProvider.instance.transactionInfo);
+                  }
+                  Navigator.pop(context);
+                },
+              )),
+          WoltModalSheetPage(
+              id: "merchant_info",
+              isTopBarLayerAlwaysVisible: true,
+              backgroundColor: Colors.white,
+              topBar: const GmpayHeader(
+                hideInfoButton: true,
+              ),
+              child: const MerchantInfoPage()),
+        ];
+
+        return pages.map((WoltModalSheetPage page) => page).toList();
+      },
+      onModalDismissedWithBarrierTap: () {
+        if (callback != null) {
+          callback(AppProvider.instance.transactionInfo);
+        }
+        Navigator.pop(context);
+      },
+      onModalDismissedWithDrag: () {
+        if (callback != null) {
+          callback(AppProvider.instance.transactionInfo);
+        }
+        Navigator.pop(context);
+      },
+    ).then((value) {
+      debugPrint("Modal dismissed");
+      AppProvider.resetInstance();
     });
+
+    // if (busy == true) {
+    //   return;
+    // }
+    // busy = true;
+
+    // final ScrollController scrollController = ScrollController();
+    // final NavBottomSheetController navBottomSheetController =
+    //     NavBottomSheetController();
+    // showNavBottomSheet(
+    //   context: context,
+    //   navBottomSheetController: navBottomSheetController,
+    //   isDismissible: true,
+    //   backdropColor: Colors.white.withOpacity(0.1),
+    //   bottomSheetHeight: 600.0,
+    //   bottomSheetBodyHasScrollView: true,
+    //   bottomSheetBodyScrollController: scrollController,
+    //   bottomSheetHeader: GmpayHeader(
+    //       // navBottomSheetController: navBottomSheetController,
+    //       ),
+    //   bottomSheetBody: WithdrawSheet(
+    //     amount: amount,
+    //     account: account,
+    //     waitForConfirmation: waitForConfirmation,
+    //     reference: reference,
+    //     metadata: metadata,
+    //   ),
+    // ).then((onValue) {
+    //   busy = null;
+    //   if (callback != null) {
+    //     callback(onValue);
+    //   }
+    // });
   }
 
   Future<(dynamic, ApiResponseMessage?)> requestOtp(

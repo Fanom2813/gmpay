@@ -75,3 +75,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 
 ### [1.0.23] - [26/6/2024]
 - chore: Update base URL to production server
+
+### [1.0.24] - [8/7/2024]
+- updated ui

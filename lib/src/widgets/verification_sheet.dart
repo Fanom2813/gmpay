@@ -2,45 +2,42 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gmpay/flutter_gmpay.dart';
+import 'package:gmpay/src/common/app_provider.dart';
+import 'package:gmpay/src/common/context_extension.dart';
 import 'package:gmpay/src/model/api_response.dart';
 import 'package:gmpay/src/theme/theme.dart';
-import 'package:gmpay/src/widgets/busy.dart';
-import 'package:gmpay/src/widgets/section_title.dart';
 import 'package:gmpay/src/common/mounted_state.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-class VerificationSheet extends StatefulWidget {
-  const VerificationSheet({super.key, this.reference});
+class VerificationPage extends StatefulWidget {
+  const VerificationPage({super.key, this.reference});
 
   final String? reference;
   @override
-  State<VerificationSheet> createState() => _VerificationSheetState();
+  State<VerificationPage> createState() => _VerificationPageState();
 }
 
-class _VerificationSheetState extends SafeState<VerificationSheet>
+class _VerificationPageState extends SafeState<VerificationPage>
     with SingleTickerProviderStateMixin {
-  String? working;
-  ApiResponseMessage? apiResponseMessage;
-
   listenForCallback() async {
-    setState(() {
-      working = "Verifying transaction, please wait...";
-    });
-
     Gmpay.instance.verifyTransactionTimer =
         Timer.periodic(const Duration(seconds: 5), (timer) async {
       var resp = await Gmpay.instance.verifyTransaction(widget.reference!);
 
       if (resp != null) {
         setState(() {
-          working = null;
           if (resp == TransactionStatus.success) {
-            apiResponseMessage = ApiResponseMessage(
-                success: true, message: "Transaction successful");
+            AppProvider.instance.apiResponseMessage = ApiResponseMessage(
+                success: true,
+                message:
+                    "Congratulations, your transaction was successful 🎉🎉🎉");
           } else if (resp == TransactionStatus.failed) {
-            apiResponseMessage = ApiResponseMessage(
-                success: false, message: "Transaction was not successful");
+            AppProvider.instance.apiResponseMessage = ApiResponseMessage(
+                success: false,
+                message:
+                    "Sorry, your transaction was not successful 😢, wait and try again later");
           } else {
-            apiResponseMessage = ApiResponseMessage(
+            AppProvider.instance.apiResponseMessage = ApiResponseMessage(
                 success: null, message: "Transaction in progress");
           }
         });
@@ -56,6 +53,7 @@ class _VerificationSheetState extends SafeState<VerificationSheet>
   @override
   void initState() {
     if (mounted) {
+      AppProvider.instance.prevPage = 'verification_page';
       listenForCallback();
     }
 
@@ -63,57 +61,40 @@ class _VerificationSheetState extends SafeState<VerificationSheet>
   }
 
   @override
+  void dispose() {
+    Gmpay.instance.verifyTransactionTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: GmpayWidgetTheme.light,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: working != null
-            ? Center(
-                child: Busy(
-                  message: working,
-                ),
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                      apiResponseMessage == null ||
-                              apiResponseMessage?.success == null
-                          ? Icons.timer_rounded
-                          : (apiResponseMessage?.success == true
-                              ? Icons.check_circle_rounded
-                              : Icons.error_rounded),
-                      size: 150,
-                      color: apiResponseMessage == null ||
-                              apiResponseMessage?.success == null
-                          ? Colors.blue.shade900
-                          : (apiResponseMessage?.success == true
-                              ? Colors.green.shade900
-                              : Colors.red.shade900)),
-                  Padding(
-                      padding:
-                          const EdgeInsets.only(top: gap_xs, bottom: gap_m),
-                      child: SectionTitle(
-                          textCrossAxisAlignment: CrossAxisAlignment.center,
-                          title: apiResponseMessage == null ||
-                                  apiResponseMessage?.success == null
-                              ? "Please wait your transaction is being processed"
-                              : apiResponseMessage!.message,
-                          subtitle: apiResponseMessage == null ||
-                                  apiResponseMessage?.success == null
-                              ? "Your transaction is being processed"
-                              : (apiResponseMessage?.success == true
-                                  ? "Congratulations, your transaction was successful 🎉🎉🎉"
-                                  : "Sorry, your transaction was not successful 😢, wait and try again later"))),
-                ],
-              ),
+    return Container(
+      padding: const EdgeInsets.all(8),
+      constraints: const BoxConstraints(minHeight: 500),
+      height: context.height * .4,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(Icons.timer_rounded, size: 150, color: Colors.blue.shade900),
+          const SizedBox(height: gap_m),
+          Text(
+            "Please wait your transaction is being processed",
+            style: context.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
 
   void closeDiag({TransactionStatus? status = TransactionStatus.failed}) {
-    Navigator.pop(
-        context, TransactionInfo(reference: widget.reference, status: status));
+    AppProvider.instance.transactionInfo =
+        TransactionInfo(reference: widget.reference, status: status);
+    if (AppProvider.instance.apiResponseMessage?.success == true) {
+      WoltModalSheet.of(context).showPageWithId("success_page");
+    } else {
+      WoltModalSheet.of(context).showPageWithId("failed_page");
+    }
   }
 }

@@ -11,12 +11,17 @@ class SectionTitle extends StatelessWidget {
       this.canGoBack,
       this.textCrossAxisAlignment,
       this.imageAsset,
+      this.textColor,
+      this.trailing,
       this.onBack});
   final String? title, subtitle;
   final bool? showDivider, canGoBack;
   final VoidCallback? onBack;
   final CrossAxisAlignment? textCrossAxisAlignment;
   final String? imageAsset;
+
+  final Color? textColor;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -47,19 +52,19 @@ class SectionTitle extends StatelessWidget {
             children: [
               Text(
                 title ?? "",
-                style: GmpayTextStyles.headline6.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: GmpayTextStyles.headline6
+                    .copyWith(fontWeight: FontWeight.w700, color: textColor),
               ),
               if (subtitle != null)
                 Text(
                   subtitle ?? "",
-                  style: GmpayTextStyles.subtitle2,
+                  style: GmpayTextStyles.subtitle2.copyWith(color: textColor),
                 ),
               if (showDivider ?? false) const Divider()
             ],
           ),
         ),
+        if (trailing != null) trailing!,
       ],
     );
   }

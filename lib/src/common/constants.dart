@@ -4,3 +4,14 @@ class AppConstants {
   // static const base = "https://gmpay-api-local-test.serveo.net";
   static const baseUrl = "$base/api/v4";
 }
+
+typedef PaymentMethod = (
+  String?,
+  String?,
+  String?,
+  List<Map<dynamic, dynamic>>,
+  String?,
+  String?,
+  String?,
+  String?,
+);

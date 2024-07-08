@@ -116,7 +116,6 @@ class TestPageState extends SafeState<TestPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     Gmpay.instance.verifyTransactionTimer?.cancel();
-    Gmpay.instance.busy = null;
     super.dispose();
   }
 
