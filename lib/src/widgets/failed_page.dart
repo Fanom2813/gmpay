@@ -13,11 +13,11 @@ class FailedPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       shrinkWrap: true,
-      padding: const EdgeInsets.all(gap_s),
+      padding: const EdgeInsets.all(gapS),
       children: [
         const Icon(Icons.error_rounded, size: 150, color: Colors.white),
         Padding(
-            padding: const EdgeInsets.only(top: gap_xs, bottom: gap_m),
+            padding: const EdgeInsets.only(top: gapXs, bottom: gapM),
             child: SectionTitle(
                 textCrossAxisAlignment: CrossAxisAlignment.center,
                 textColor: GmpayWidgetTheme.light.colorScheme.onError,
@@ -25,7 +25,7 @@ class FailedPage extends StatelessWidget {
                 subtitle:
                     "Try again later or contact your merchant for more information reason : ${AppProvider.instance.apiResponseMessage?.message}")),
         const SizedBox(
-          height: gap_l,
+          height: gapL,
         ),
         TextButton(
             onPressed: () {
@@ -39,15 +39,14 @@ class FailedPage extends StatelessWidget {
             ),
             child: const Text("Retry")),
         Padding(
-          padding:
-              const EdgeInsets.symmetric(vertical: gap_s, horizontal: gap_s),
+          padding: const EdgeInsets.symmetric(vertical: gapS, horizontal: gapS),
           child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(50),
                 backgroundColor: GmpayWidgetTheme.light.colorScheme.onError,
                 foregroundColor: GmpayWidgetTheme.light.colorScheme.error,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(gap_s)),
+                    borderRadius: BorderRadius.circular(gapS)),
               ),
               onPressed: () {
                 if (onDone != null) {

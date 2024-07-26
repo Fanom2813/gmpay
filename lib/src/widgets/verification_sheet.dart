@@ -77,7 +77,7 @@ class _VerificationPageState extends SafeState<VerificationPage>
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(Icons.timer_rounded, size: 150, color: Colors.blue.shade900),
-          const SizedBox(height: gap_m),
+          const SizedBox(height: gapM),
           Text(
             "Please wait your transaction is being processed",
             style: context.titleMedium?.copyWith(fontWeight: FontWeight.bold),

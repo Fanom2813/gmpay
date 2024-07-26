@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:deep_pick/deep_pick.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +9,6 @@ import 'package:gmpay/flutter_gmpay.dart';
 import 'package:gmpay/src/common/app_provider.dart';
 import 'package:gmpay/src/common/constants.dart';
 import 'package:gmpay/src/common/mounted_state.dart';
-import 'package:gmpay/src/gmpay.dart';
 import 'package:gmpay/src/helpers.dart';
 import 'package:gmpay/src/model/api_response.dart';
 import 'package:gmpay/src/theme/theme.dart';
@@ -200,10 +201,10 @@ class _PaymentFormState extends SafeState<PaymentForm> {
       child: ListView(
         physics: const BouncingScrollPhysics(),
         shrinkWrap: true,
-        padding: const EdgeInsets.all(gap_s),
+        padding: const EdgeInsets.all(gapS),
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: gap_xs, bottom: gap_m),
+            padding: const EdgeInsets.only(top: gapXs, bottom: gapM),
             child: SectionTitle(
               canGoBack: true,
               imageAsset: paymentMethod?.$7,
@@ -218,8 +219,8 @@ class _PaymentFormState extends SafeState<PaymentForm> {
           ),
           if (paymentMethod?.$8 != null)
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: gap_s, horizontal: gap_s),
+              padding:
+                  const EdgeInsets.symmetric(vertical: gapS, horizontal: gapS),
               child: SimpleNotificationMessage(
                 type: SimpleNotificationMessageType.info,
                 icon: Icons.info_rounded,
@@ -236,7 +237,7 @@ class _PaymentFormState extends SafeState<PaymentForm> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: gap_s, horizontal: gap_s),
+                      vertical: gapS, horizontal: gapS),
                   child: FormBuilderTextField(
                     name: 'amount',
                     readOnly: (widget.amount != null && widget.amount! > 0),
@@ -248,7 +249,7 @@ class _PaymentFormState extends SafeState<PaymentForm> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: gap_xxs, horizontal: gap_s),
+                      vertical: gapXxs, horizontal: gapS),
                   child: FormBuilderTextField(
                     name: 'account',
                     validator: FormBuilderValidators.compose([
@@ -260,7 +261,7 @@ class _PaymentFormState extends SafeState<PaymentForm> {
                 if (paymentMethod?.$5 != null) ...[
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: gap_s, horizontal: gap_s),
+                        vertical: gapS, horizontal: gapS),
                     child: FormBuilderTextField(
                       name: 'otp',
                       validator: FormBuilderValidators.compose([
@@ -283,7 +284,7 @@ class _PaymentFormState extends SafeState<PaymentForm> {
                   ...paymentMethod!.$4.map((e) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: gap_xxs, horizontal: gap_s),
+                          vertical: gapXxs, horizontal: gapS),
                       child: FormBuilderTextField(
                         name: pick(e, 'key').required().asString(),
                         validator: FormBuilderValidators.compose([
@@ -303,7 +304,7 @@ class _PaymentFormState extends SafeState<PaymentForm> {
                   }),
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: gap_s, horizontal: gap_s),
+                      vertical: gapS, horizontal: gapS),
                   child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
@@ -311,7 +312,7 @@ class _PaymentFormState extends SafeState<PaymentForm> {
                         foregroundColor:
                             GmpayWidgetTheme.light.colorScheme.onPrimary,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(gap_s)),
+                            borderRadius: BorderRadius.circular(gapS)),
                       ),
                       onPressed: working == null
                           ? () {

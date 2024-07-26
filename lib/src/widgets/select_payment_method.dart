@@ -82,11 +82,11 @@ class _SelectPaymentMethodState extends SafeState<SelectPaymentMethod> {
   Widget build(BuildContext context) {
     return ListView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(gap_s),
+      padding: const EdgeInsets.all(gapS),
       shrinkWrap: true,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: gap_xs, bottom: gap_m),
+          padding: const EdgeInsets.only(top: gapXs, bottom: gapM),
           child: SectionTitle(
             title: "Unified Payments",
             subtitle:
@@ -122,7 +122,7 @@ class _SelectPaymentMethodState extends SafeState<SelectPaymentMethod> {
                               color: selected
                                   ? Colors.green.shade50
                                   : Colors.transparent,
-                              borderRadius: BorderRadius.circular(gap_s),
+                              borderRadius: BorderRadius.circular(gapS),
                               child: ListTile(
                                 leading: e.$7 != null
                                     ? Image.asset('assets/${e.$7}',
@@ -135,7 +135,7 @@ class _SelectPaymentMethodState extends SafeState<SelectPaymentMethod> {
                                         size: 30,
                                       ),
                                 contentPadding: const EdgeInsets.symmetric(
-                                    vertical: gap_xs, horizontal: gap_s),
+                                    vertical: gapXs, horizontal: gapS),
                                 selected: selected,
                                 onTap: () {
                                   // field.didChange(methods!.indexOf(e));
@@ -189,7 +189,7 @@ class _SelectPaymentMethodState extends SafeState<SelectPaymentMethod> {
           ),
         ),
         contentPadding:
-            const EdgeInsets.symmetric(vertical: gap_xs, horizontal: gap_s),
+            const EdgeInsets.symmetric(vertical: gapXs, horizontal: gapS),
         title: Shimmer(
             color: shimmerColor,
             child: const Text(

@@ -70,7 +70,7 @@ class _MerchantInfoPageState extends SafeState<MerchantInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(gap_s),
+      padding: const EdgeInsets.all(gapS),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -89,7 +89,7 @@ class _MerchantInfoPageState extends SafeState<MerchantInfoPage> {
             ),
           ),
           const Padding(
-            padding: EdgeInsets.only(top: gap_l),
+            padding: EdgeInsets.only(top: gapL),
             child: SectionTitle(
               title: "Merchant Details",
               showDivider: true,
@@ -204,7 +204,7 @@ class _MerchantInfoPageState extends SafeState<MerchantInfoPage> {
                 )),
           ),
           const Padding(
-            padding: EdgeInsets.only(top: gap_xs),
+            padding: EdgeInsets.only(top: gapXs),
             child: Text(
               'Tap to send email',
               textAlign: TextAlign.center,

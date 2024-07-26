@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gmpay/flutter_gmpay.dart';
@@ -63,13 +64,13 @@ class WeNeedTheNavigator extends StatelessWidget {
                 },
                 waitForConfirmation: true,
                 approvalUrlHandler: (p0) {
-                  print(p0);
+                  debugPrint(p0);
                 },
                 callback: (p1) {
                   if (p1 == null) {
-                    print("Transaction cancelled");
+                    debugPrint("Transaction cancelled");
                   } else {
-                    print(p1.status?.name);
+                    debugPrint(p1.status?.name);
                   }
                 },
               );
@@ -84,9 +85,11 @@ class WeNeedTheNavigator extends StatelessWidget {
                 waitForConfirmation: true,
                 callback: (p1) {
                   if (p1 == null) {
-                    print("Transaction cancelled");
+                    debugPrint("Transaction cancelled");
                   } else {
-                    print(p1);
+                    if (kDebugMode) {
+                      print(p1);
+                    }
                   }
                 },
               );
@@ -100,9 +103,11 @@ class WeNeedTheNavigator extends StatelessWidget {
                 reference: "1X4BJYKO6E8D",
                 callback: (p1) {
                   if (p1 == null) {
-                    print("Transaction cancelled");
+                    debugPrint("Transaction cancelled");
                   } else {
-                    print(p1);
+                    if (kDebugMode) {
+                      print(p1);
+                    }
                   }
                 },
               );

@@ -31,7 +31,7 @@ class SectionTitle extends StatelessWidget {
         if (canGoBack == true) ...[
           IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
           const SizedBox(
-            width: gap_xs,
+            width: gapXs,
           ),
         ],
         if (imageAsset != null) ...[
@@ -42,7 +42,7 @@ class SectionTitle extends StatelessWidget {
             package: 'gmpay',
           ),
           const SizedBox(
-            width: gap_xs,
+            width: gapXs,
           ),
         ],
         Expanded(

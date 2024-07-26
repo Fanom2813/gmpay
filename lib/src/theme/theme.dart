@@ -4,7 +4,7 @@ import 'package:gmpay/src/theme/colors.dart';
 class GmpayWidgetTheme {
   static const borderInput = OutlineInputBorder(
       borderSide: BorderSide(color: Color(GmpayColors.primaryColor)),
-      borderRadius: BorderRadius.all(Radius.circular(gap_s)));
+      borderRadius: BorderRadius.all(Radius.circular(gapS)));
 
   static final textButtonStyle = TextButton.styleFrom(
       foregroundColor: Colors.green.shade900,
@@ -14,8 +14,7 @@ class GmpayWidgetTheme {
       backgroundColor: Colors.green.shade900,
       foregroundColor: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(gap_s)));
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(gapS)));
 
   static final outlinedGreenButtonStyle = OutlinedButton.styleFrom(
     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
@@ -35,35 +34,35 @@ class GmpayWidgetTheme {
     ),
     inputDecorationTheme: const InputDecorationTheme(
       border: borderInput,
-      contentPadding: EdgeInsets.symmetric(horizontal: gap_s, vertical: gap_m),
+      contentPadding: EdgeInsets.symmetric(horizontal: gapS, vertical: gapM),
       isDense: true,
     ),
   );
 }
 
 //gaps sizes
-const double gap_xxxs = 2.0;
-const double gap_xxs = 4.0;
-const double gap_xs = 8.0;
-const double gap_s = 16.0;
-const double gap_m = 24.0;
-const double gap_l = 32.0;
-const double gap_xl = 40.0;
-const double gap_xxl = 48.0;
-const double gap_xxxl = 56.0;
-const double gap_xxxxl = 64.0;
-const double gap_xxxxxl = 72.0;
-const double gap_xxxxxxl = 80.0;
-const double gap_xxxxxxxl = 88.0;
-const double gap_xxxxxxxxl = 96.0;
-const double gap_xxxxxxxxxl = 104.0;
-const double gap_xxxxxxxxxxl = 112.0;
-const double gap_xxxxxxxxxxxl = 120.0;
-const double gap_xxxxxxxxxxxxl = 128.0;
-const double gap_xxxxxxxxxxxxxl = 136.0;
-const double gap_xxxxxxxxxxxxxxl = 144.0;
-const double gap_xxxxxxxxxxxxxxxl = 152.0;
-const double gap_xxxxxxxxxxxxxxxxl = 160.0;
-const double gap_xxxxxxxxxxxxxxxxxl = 168.0;
+const double gapXxxs = 2.0;
+const double gapXxs = 4.0;
+const double gapXs = 8.0;
+const double gapS = 16.0;
+const double gapM = 24.0;
+const double gapL = 32.0;
+const double gapXl = 40.0;
+const double gapXxl = 48.0;
+const double gapXxxl = 56.0;
+const double gapXxxxl = 64.0;
+const double gapXxxxxl = 72.0;
+const double gapXxxxxxl = 80.0;
+const double gapXxxxxxxl = 88.0;
+const double gapXxxxxxxxl = 96.0;
+const double gapXxxxxxxxxl = 104.0;
+const double gapXxxxxxxxxxl = 112.0;
+const double gapXxxxxxxxxxxl = 120.0;
+const double gapXxxxxxxxxxxxl = 128.0;
+const double gapXxxxxxxxxxxxxl = 136.0;
+const double gapXxxxxxxxxxxxxxl = 144.0;
+const double gapXxxxxxxxxxxxxxxl = 152.0;
+const double gapXxxxxxxxxxxxxxxxl = 160.0;
+const double gapXxxxxxxxxxxxxxxxxl = 168.0;
 
 final shimmerColor = Colors.grey.shade300;
