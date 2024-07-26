@@ -28,12 +28,15 @@ class Gmpay {
   Timer? verifyTransactionTimer;
 
   String? apiKey, secretKey, package;
+  bool? test;
 
   ///initialize the plugin with your public key
-  void initialize({String? key, String? secret, String? packageName}) {
+  void initialize(
+      {String? key, String? secret, String? packageName, bool? testMode}) {
     apiKey = key;
     secretKey = secret;
     package = packageName;
+    test = testMode;
   }
 
   bool get isInitialized => apiKey != null || package != null;
@@ -413,7 +416,7 @@ class Gmpay {
   Future<(dynamic, ApiResponseMessage?)> processTransaction(
       String? module, String? method, Map<String, dynamic> finalData) async {
     return await apiClient.postRequest(
-        "transactions/$module/$method", finalData);
+        "transactions/$module/$method", {...finalData, "test": test});
   }
 
   Future<TransactionStatus?> verifyTransaction(String? s) async {
