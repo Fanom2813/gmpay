@@ -265,8 +265,9 @@ class _PaymentFormState extends SafeState<PaymentForm> {
                     child: FormBuilderTextField(
                       name: 'otp',
                       validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.minLength(4,
-                            checkNullOrEmpty: false)
+                        FormBuilderValidators.minLength(
+                          4,
+                        )
                       ]),
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(

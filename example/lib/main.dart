@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // Gmpay.instance.initialize(
     //     key: dotenv.env['APIKEY']!, secret: dotenv.env['APISECRET']!);
-    Gmpay.instance.initialize(packageName: "com.test.app", testMode: true);
+    Gmpay.instance.initialize(packageName: "com.test.app", testMode: false);
     super.initState();
   }
 

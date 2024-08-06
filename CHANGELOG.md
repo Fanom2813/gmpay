@@ -81,3 +81,6 @@ All notable changes to the GMPay Flutter Plugin will be documented in this file.
 
 ### [1.0.26] - [26/7/2024]
 - added test mode
+
+### [1.0.27] - [27/8/2024]
+- fixes
